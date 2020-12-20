@@ -17,3 +17,7 @@ CMakeLists.txt.user
 
 #MUSIC
 !*.wav
+
+#VSCODE
+.vscode/tasks.json
+.vscode/launch.json

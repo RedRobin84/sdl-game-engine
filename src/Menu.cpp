@@ -127,7 +127,7 @@ void Menu::loadMedia()
     m_textColor = {0, 0, 0, 0xFF};
     m_highlightColor = {0xFF, 0, 0, 0xFF};
 
-    m_font.reset(TTF_OpenFont(Fonts::LAZY_FONT_PATH, Fonts::MEDIUM_FONT_SIZE));
+    m_font.reset(TTF_OpenFont(LAZY_FONT_PATH, MEDIUM_FONT_SIZE));
     if (m_font == NULL)
     {
         Logger::error("Menu::loadMedia: Failed to load lazy font! SDL_ttf Error: %s");

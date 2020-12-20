@@ -7,19 +7,19 @@
 std::vector<Logger::Message> Logger::messageStack;
 time_t Logger::currentTime;
 std::ofstream Logger::logFile;
-Logger::BUFFERED_LOGGING Logger::bufferedLogging;
-Logger::DEBUG_MODE Logger::debugMode;
-size_t Logger::userStackSize;
+const char * Logger::userFileName = DEFAULT_FILE_NAME;
+Logger::BUFFERED_LOGGING Logger::bufferedLogging = BUFFERED_LOGGING::OFF;
+Logger::DEBUG_MODE Logger::debugMode = DEBUG_MODE::OFF;
+size_t Logger::userStackSize = DEFAULT_STACK_SIZE;
 
-
-void Logger::init(DEBUG_MODE dm, BUFFERED_LOGGING bl, const size_t userSize)
+void Logger::init(DEBUG_MODE dm, BUFFERED_LOGGING bl, const size_t userSize, const char * userFN)
 {
     debugMode = dm;
     bufferedLogging = bl;
     userStackSize = userSize;
+    userFileName = userFN;
     resetTime();
-    logFile.open(LoggerTags::PATH, std::ios::out | std::ios::trunc);
-    logFile.close();
+    fileCheck();
     printSystemMessage(LoggerTags::INIT_MESSAGE);
     printSystemMessage(debugMode == DEBUG_MODE::ON ? LoggerTags::DEBUG_MODE_ON : LoggerTags::DEBUG_MODE_OFF);
     printSystemMessage(bufferedLogging == BUFFERED_LOGGING::ON ? LoggerTags::BUFFERED_LOGGING_ON : LoggerTags::BUFFERED_LOGGING_OFF);
@@ -66,7 +66,8 @@ void Logger::error(const char *message)
 
 void Logger::debug(const char *message)
 {
-
+    if (bufferedLogging == BUFFERED_LOGGING::OFF) return;
+    handleMessage(LoggerTags::WHITE, LoggerTags::DEBUG, message);
 }
 
 void Logger::handleMessage(const char *color, const char *typeHeader, const char *message)
@@ -92,14 +93,14 @@ void Logger::flush()
 {
     if (messageStack.empty())
     {
-        printSystemMessage("Logger::flush: Trying to flush empty container."); //TODO DEBUG
+        printSystemMessage("flush: Trying to flush empty container."); //TODO DEBUG
         return;
     }
 
-    logFile.open(LoggerTags::PATH, std::ios::out | std::ios::app);
-    if (!logFile.is_open())
+    logFile.open((userFileName ? userFileName : DEFAULT_FILE_NAME), std::ios::out | std::ios::app);
+    if (logFile.bad())
     {
-        printSystemMessage("Logger::flush: ERROR: Unable to open file!");
+        printSystemMessage("flush: Unable to write to file!");
         return;
     }
     std::for_each(begin(messageStack), end(messageStack), [](const Message &msg) { write(msg.message, msg.msgType); });
@@ -110,8 +111,9 @@ void Logger::flush()
 
 void Logger::stackMessage(const char *message, const char *typeHeader)
 {
-    if (messageStack.capacity() == 0 && messageStack.size() != userStackSize)
+    if (messageStack.capacity() == 0)
     {
+        if (debugMode == DEBUG_MODE::ON) printSystemMessage("stackMessage: Not enough capacity. Extending...");
         messageStack.reserve(userStackSize);
     }
 
@@ -119,6 +121,7 @@ void Logger::stackMessage(const char *message, const char *typeHeader)
 
     if (messageStack.size() >= userStackSize || strcmp(typeHeader, LoggerTags::ERROR) == 0)
     {
+        if (debugMode == DEBUG_MODE::ON) printSystemMessage("stackMessage: Container full or message of type [ERROR] = flush()");
         flush();
     }
 }
@@ -130,11 +133,11 @@ void Logger::resetTime()
 
 void Logger::writeMessage(const char *message, const char *typeHeader)
 {
-    logFile.open(LoggerTags::PATH, std::ios::out | std::ios::app);
+    logFile.open(userFileName, std::ios::out | std::ios::app);
 
-    if (!logFile.is_open())
+    if (logFile.bad())
     {
-        printSystemMessage("Logger::writeMessage: ERROR: Unable to open file!");
+        printSystemMessage("writeMessage: Unable to write to file!");
         return;
     }
     write(message, typeHeader);
@@ -153,4 +156,11 @@ void Logger::finalCleanup()
         flush();
     }
     printSystemMessage(LoggerTags::EXIT_MESSAGE);
+}
+
+void Logger::fileCheck()
+{
+    logFile.open(userFileName, std::ios::out | std::ios::app);
+    if (logFile.bad()) logFile.open(userFileName, std::ios::out | std::ios::trunc);
+    logFile.close();
 }
