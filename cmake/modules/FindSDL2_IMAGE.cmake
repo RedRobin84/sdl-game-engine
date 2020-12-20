@@ -1,31 +1,16 @@
-# Locate SDL2 library
+# Locate SDL2_image library
 # This module defines
-# SDL2_LIBRARY, the name of the library to link against
-# SDL2_FOUND, if false, do not try to link to SDL2
-# SDL2_INCLUDE_DIR, where to find SDL.h
+# SDL2_IMAGE_LIBRARY, the name of the library to link against
+# SDL2_IMAGE_FOUND, if false, do not try to link to SDL2_image
+# SDL2_IMAGE_INCLUDE_DIR, where to find SDL_image.h
 #
-# This module responds to the the flag:
-# SDL2_BUILDING_LIBRARY
-# If this is defined, then no SDL2_main will be linked in because
-# only applications need main().
-# Otherwise, it is assumed you are building an application and this
-# module will attempt to locate and set the the proper link flags
-# as part of the returned SDL2_LIBRARY variable.
-#
-# Don't forget to include SDL2main.h and SDL2main.m your project for the
-# OS X framework based version. (Other versions link to -lSDL2main which
-# this module will try to find on your behalf.) Also for OS X, this
-# module will automatically add the -framework Cocoa on your behalf.
-#
-#
-# Additional Note: If you see an empty SDL2_LIBRARY_TEMP in your configuration
-# and no SDL2_LIBRARY, it means CMake did not find your SDL2 library
-# (SDL2.dll, libsdl2.so, SDL2.framework, etc).
-# Set SDL2_LIBRARY_TEMP to point to your SDL2 library, and configure again.
+# Additional Note: If you see an empty SDL2_IMAGE_LIBRARY_TEMP in your configuration
+# and no SDL2_IMAGE_LIBRARY, it means CMake did not find your SDL2_Image library
+# (SDL2_image.dll, libsdl2_image.so, SDL2_image.framework, etc).
+# Set SDL2_IMAGE_LIBRARY_TEMP to point to your SDL2 library, and configure again.
 # Similarly, if you see an empty SDL2MAIN_LIBRARY, you should set this value
-# as appropriate. These values are used to generate the final SDL2_LIBRARY
-# variable, but when these values are unset, SDL2_LIBRARY does not get created.
-#
+# as appropriate. These values are used to generate the final SDL2_IMAGE_LIBRARY
+# variable, but when these values are unset, SDL2_IMAGE_LIBRARY does not get created.
 #
 # $SDL2 is an environment variable that would
 # correspond to the ./configure --prefix=$SDL2
@@ -44,7 +29,7 @@
 #
 # On OSX, this will prefer the Framework version (if found) over others.
 # People will have to manually change the cache values of
-# SDL2_LIBRARY to override this selection or set the CMake environment
+# SDL2_IMAGE_LIBRARY to override this selection or set the CMake environment
 # CMAKE_INCLUDE_PATH to modify the search paths.
 #
 # Note that the header path has changed from SDL2/SDL.h to just SDL.h
@@ -103,10 +88,11 @@
 # (To distribute this file outside of CMake, substitute the full
 # License text for the above reference.)
 
-FIND_PATH(SDL2_INCLUDE_DIR SDL.h
+FIND_PATH(SDL2_IMAGE_INCLUDE_DIR SDL_image.h
         HINTS
         ${SDL2}
         $ENV{SDL2}
+        $ENV{SDL2_IMAGE}
         PATH_SUFFIXES include/SDL2 include SDL2
         i686-w64-mingw32/include/SDL2
         x86_64-w64-mingw32/include/SDL2
@@ -123,10 +109,12 @@ FIND_PATH(SDL2_INCLUDE_DIR SDL.h
 
 # Lookup the 64 bit libs on x64
 IF(CMAKE_SIZEOF_VOID_P EQUAL 8)
-    FIND_LIBRARY(SDL2_LIBRARY_TEMP SDL2
+    FIND_LIBRARY(SDL2_IMAGE_LIBRARY_TEMP
+            NAMES SDL2_image
             HINTS
             ${SDL2}
             $ENV{SDL2}
+            $ENV{SDL2_IMAGE}
             PATH_SUFFIXES lib64 lib
             lib/x64
             x86_64-w64-mingw32/lib
@@ -138,10 +126,12 @@ IF(CMAKE_SIZEOF_VOID_P EQUAL 8)
             )
     # On 32bit build find the 32bit libs
 ELSE(CMAKE_SIZEOF_VOID_P EQUAL 8)
-    FIND_LIBRARY(SDL2_LIBRARY_TEMP SDL2
+    FIND_LIBRARY(SDL2_IMAGE_LIBRARY_TEMP
+            NAMES SDL2_image
             HINTS
             ${SDL2}
             $ENV{SDL2}
+            $ENV{SDL2_IMAGE}
             PATH_SUFFIXES lib
             lib/x86
             i686-w64-mingw32/lib
@@ -153,102 +143,15 @@ ELSE(CMAKE_SIZEOF_VOID_P EQUAL 8)
             )
 ENDIF(CMAKE_SIZEOF_VOID_P EQUAL 8)
 
-IF(NOT SDL2_BUILDING_LIBRARY)
-    IF(NOT ${SDL2_INCLUDE_DIR} MATCHES ".framework")
-        # Non-OS X framework versions expect you to also dynamically link to
-        # SDL2main. This is mainly for Windows and OS X. Other (Unix) platforms
-        # seem to provide SDL2main for compatibility even though they don't
-        # necessarily need it.
-        # Lookup the 64 bit libs on x64
-        IF(CMAKE_SIZEOF_VOID_P EQUAL 8)
-            FIND_LIBRARY(SDL2MAIN_LIBRARY
-                    NAMES SDL2main
-                    HINTS
-                    ${SDL2}
-                    $ENV{SDL2}
-                    PATH_SUFFIXES lib64 lib
-                    lib/x64
-                    x86_64-w64-mingw32/lib
-                    PATHS
-                    /sw
-                    /opt/local
-                    /opt/csw
-                    /opt
-                    )
-            # On 32bit build find the 32bit libs
-        ELSE(CMAKE_SIZEOF_VOID_P EQUAL 8)
-            FIND_LIBRARY(SDL2MAIN_LIBRARY
-                    NAMES SDL2main
-                    HINTS
-                    ${SDL2}
-                    $ENV{SDL2}
-                    PATH_SUFFIXES lib
-                    lib/x86
-                    i686-w64-mingw32/lib
-                    PATHS
-                    /sw
-                    /opt/local
-                    /opt/csw
-                    /opt
-                    )
-        ENDIF(CMAKE_SIZEOF_VOID_P EQUAL 8)
-    ENDIF(NOT ${SDL2_INCLUDE_DIR} MATCHES ".framework")
-ENDIF(NOT SDL2_BUILDING_LIBRARY)
-
-# SDL2 may require threads on your system.
-# The Apple build may not need an explicit flag because one of the
-# frameworks may already provide it.
-# But for non-OSX systems, I will use the CMake Threads package.
-IF(NOT APPLE)
-    FIND_PACKAGE(Threads)
-ENDIF(NOT APPLE)
-
-# MinGW needs an additional library, mwindows
-# It's total link flags should look like -lmingw32 -lSDL2main -lSDL2 -lmwindows
-# (Actually on second look, I think it only needs one of the m* libraries.)
-IF(MINGW)
-    SET(MINGW32_LIBRARY mingw32 CACHE STRING "mwindows for MinGW")
-ENDIF(MINGW)
-
-SET(SDL2_FOUND "NO")
-IF(SDL2_LIBRARY_TEMP)
-    # For SDL2main
-    IF(NOT SDL2_BUILDING_LIBRARY)
-        IF(SDL2MAIN_LIBRARY)
-            SET(SDL2_LIBRARY_TEMP ${SDL2MAIN_LIBRARY} ${SDL2_LIBRARY_TEMP})
-        ENDIF(SDL2MAIN_LIBRARY)
-    ENDIF(NOT SDL2_BUILDING_LIBRARY)
-
-    # For OS X, SDL2 uses Cocoa as a backend so it must link to Cocoa.
-    # CMake doesn't display the -framework Cocoa string in the UI even
-    # though it actually is there if I modify a pre-used variable.
-    # I think it has something to do with the CACHE STRING.
-    # So I use a temporary variable until the end so I can set the
-    # "real" variable in one-shot.
-    IF(APPLE)
-        SET(SDL2_LIBRARY_TEMP ${SDL2_LIBRARY_TEMP} "-framework Cocoa")
-    ENDIF(APPLE)
-
-    # For threads, as mentioned Apple doesn't need this.
-    # In fact, there seems to be a problem if I used the Threads package
-    # and try using this line, so I'm just skipping it entirely for OS X.
-    IF(NOT APPLE)
-        SET(SDL2_LIBRARY_TEMP ${SDL2_LIBRARY_TEMP} ${CMAKE_THREAD_LIBS_INIT})
-    ENDIF(NOT APPLE)
-
-    # For MinGW library
-    IF(MINGW)
-        SET(SDL2_LIBRARY_TEMP ${MINGW32_LIBRARY} ${SDL2_LIBRARY_TEMP})
-    ENDIF(MINGW)
-
+SET(SDL2_IMAGE_FOUND "NO")
+IF(SDL2_IMAGE_LIBRARY_TEMP)
     # Set the final string here so the GUI reflects the final state.
-    SET(SDL2_LIBRARY ${SDL2_LIBRARY_TEMP} CACHE STRING "Where the SDL2 Library can be found")
+    SET(SDL2_IMAGE_LIBRARY ${SDL2_IMAGE_LIBRARY_TEMP} CACHE STRING "Where the SDL2_image Library can be found")
     # Set the temp variable to INTERNAL so it is not seen in the CMake GUI
-    SET(SDL2_LIBRARY_TEMP "${SDL2_LIBRARY_TEMP}" CACHE INTERNAL "")
-
-    SET(SDL2_FOUND "YES")
-ENDIF(SDL2_LIBRARY_TEMP)
+    SET(SDL2_IMAGE_LIBRARY_TEMP "${SDL2_IMAGE_LIBRARY_TEMP}" CACHE INTERNAL "")
+    SET(SDL2_IMAGE_FOUND "YES")
+ENDIF(SDL2_IMAGE_LIBRARY_TEMP)
 
 INCLUDE(FindPackageHandleStandardArgs)
 
-FIND_PACKAGE_HANDLE_STANDARD_ARGS(SDL2 REQUIRED_VARS SDL2_LIBRARY SDL2_INCLUDE_DIR)
+FIND_PACKAGE_HANDLE_STANDARD_ARGS(SDL2_IMAGE REQUIRED_VARS SDL2_IMAGE_LIBRARY SDL2_IMAGE_INCLUDE_DIR)

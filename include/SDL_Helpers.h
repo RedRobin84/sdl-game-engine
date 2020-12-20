@@ -1,7 +1,7 @@
 #pragma once
 
-#include "SDL2/SDL.h"
-#include "SDL2/SDL_ttf.h"
+#include "SDL_platform.h"
+#include "SDL_ttf_platform.h"
 
 struct SDL_Destroyers
 {

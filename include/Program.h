@@ -3,7 +3,7 @@
 #include "ProgramType.h"
 #include "SDL_Helpers.h"
 
-#include "SDL2/SDL_image.h"
+#include "SDL_image_platform.h"
 
 class Program
 {
