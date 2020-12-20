@@ -1,8 +1,9 @@
 #pragma once
 
 #include <string>
-#include <SDL2/SDL_image.h>
-#include <SDL2/SDL_ttf.h>
+#include "SDL_platform.h"
+#include "SDL_image_platform.h"
+#include "SDL_ttf_platform.h"
 
 class LTexture
 {

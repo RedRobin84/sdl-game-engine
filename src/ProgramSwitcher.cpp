@@ -1,7 +1,7 @@
 #include "ProgramSwitcher.h"
 #include "Menu.h"
 
-#include <SDL2/SDL_ttf.h>
+#include "SDL_ttf_platform.h"
 
 ProgramSwitcher::ProgramSwitcher() :   m_factory(std::make_unique<ProgramFactory>())
 {
