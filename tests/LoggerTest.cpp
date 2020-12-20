@@ -53,7 +53,8 @@ public:
     {
         Logger::writeMessage("Info test", "[INFO]");
         requiredString = "[INFO]: Info test - " + std::string(ctime(&Logger::currentTime));
-        testFile.open(LoggerTags::PATH, std::ios::out | std::ios::app);
+        testFile.open(LoggerTags::PATH);
+        
         getline(testFile, testString);
         testString.append("\n");
         testFile.close();
