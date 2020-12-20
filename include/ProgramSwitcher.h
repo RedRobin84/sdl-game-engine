@@ -3,7 +3,7 @@
 #include "ProgramType.h"
 #include "ProgramFactory.h"
 
-#include <SDL2/SDL.h>
+#include "SDL_platform.h"
 
 #include <memory>
 #include <stack>
