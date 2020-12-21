@@ -14,9 +14,10 @@ enum class DEBUG_MODE { OFF, ON };
 enum class BUFFERED_LOGGING { OFF, ON };
 
    constexpr static size_t DEFAULT_STACK_SIZE = 10;
+   constexpr static char DEFAULT_FILE_NAME[] = "log.txt";
 
    static void init(DEBUG_MODE dm = DEBUG_MODE::OFF, BUFFERED_LOGGING bl = BUFFERED_LOGGING::OFF, 
-                    const size_t userSize = DEFAULT_STACK_SIZE);
+                    const size_t userSize = DEFAULT_STACK_SIZE, const char * userFileName = DEFAULT_FILE_NAME);
 
    static void info(const char *message);
    static void warn(const char *message);
@@ -39,6 +40,7 @@ private:
    };
 
    static std::vector<Message> messageStack;
+   static const char * userFileName;
    static time_t currentTime;
    static std::ofstream logFile;
    static BUFFERED_LOGGING bufferedLogging;
@@ -54,6 +56,7 @@ private:
    static void resetTime();
    static void writeMessage(const char *message, const char *typeHeader);
    static void write(const char *message, const char *typeHeader, time_t time = 0L);
+   static void fileCheck();
 
    friend class LoggerTest;
 };

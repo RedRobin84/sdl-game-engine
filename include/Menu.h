@@ -15,6 +15,8 @@ public:
 
 private:
     const int TOTAL_DATA;
+    constexpr static int MEDIUM_FONT_SIZE = 28;
+    constexpr static char LAZY_FONT_PATH[] = "../assets/fonts/lazy.ttf";
     
     int m_currentData;
     std::unique_ptr<TTF_Font, TTF_Destroyers> m_font;
