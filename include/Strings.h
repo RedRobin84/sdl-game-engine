@@ -31,7 +31,7 @@ namespace LoggerTags
     inline constexpr char WHITE[] = "[0;37m";
     inline constexpr char RESET[] = "[0m";
     inline constexpr char ENDL[] = "\n";
-    inline constexpr char INIT_MESSAGE[] = "LOGGING STARTED";
+    inline constexpr char INIT_MESSAGE[] = "********** LOGGING STARTED **********";
     inline constexpr char EXIT_MESSAGE[] = "LOGGING ENEDED";
     inline constexpr char DEBUG_MODE_ON[] = "DEBUG MODE:\t\t ON";
     inline constexpr char DEBUG_MODE_OFF[] = "DEBUG MODE:\t\t OFF";

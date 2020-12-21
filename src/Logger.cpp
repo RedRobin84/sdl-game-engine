@@ -7,12 +7,12 @@
 std::vector<Logger::Message> Logger::messageStack;
 time_t Logger::currentTime;
 std::ofstream Logger::logFile;
-const char * Logger::userFileName = DEFAULT_FILE_NAME;
+const char *Logger::userFileName = DEFAULT_FILE_NAME;
 Logger::BUFFERED_LOGGING Logger::bufferedLogging = BUFFERED_LOGGING::OFF;
 Logger::DEBUG_MODE Logger::debugMode = DEBUG_MODE::OFF;
 size_t Logger::userStackSize = DEFAULT_STACK_SIZE;
 
-void Logger::init(DEBUG_MODE dm, BUFFERED_LOGGING bl, const size_t userSize, const char * userFN)
+void Logger::init(DEBUG_MODE dm, BUFFERED_LOGGING bl, const size_t userSize, const char *userFN)
 {
     debugMode = dm;
     bufferedLogging = bl;
@@ -21,6 +21,7 @@ void Logger::init(DEBUG_MODE dm, BUFFERED_LOGGING bl, const size_t userSize, con
     resetTime();
     fileCheck();
     printSystemMessage(LoggerTags::INIT_MESSAGE);
+    writeMessage(LoggerTags::INIT_MESSAGE, LoggerTags::LOGGER);
     printSystemMessage(debugMode == DEBUG_MODE::ON ? LoggerTags::DEBUG_MODE_ON : LoggerTags::DEBUG_MODE_OFF);
     printSystemMessage(bufferedLogging == BUFFERED_LOGGING::ON ? LoggerTags::BUFFERED_LOGGING_ON : LoggerTags::BUFFERED_LOGGING_OFF);
 }
@@ -35,6 +36,7 @@ void Logger::enableBufferedLogging()
 
     bufferedLogging = BUFFERED_LOGGING::ON;
     messageStack.reserve(userStackSize);
+    printSystemMessage(LoggerTags::BUFFERED_LOGGING_ON);
 }
 void Logger::disableBufferedLogging()
 {
@@ -47,6 +49,7 @@ void Logger::disableBufferedLogging()
     bufferedLogging = BUFFERED_LOGGING::OFF;
     flush();
     messageStack.clear();
+    printSystemMessage(LoggerTags::BUFFERED_LOGGING_OFF);
 }
 
 void Logger::info(const char *message)
@@ -66,7 +69,9 @@ void Logger::error(const char *message)
 
 void Logger::debug(const char *message)
 {
-    if (bufferedLogging == BUFFERED_LOGGING::OFF) return;
+    if (bufferedLogging == BUFFERED_LOGGING::OFF)
+        return;
+
     handleMessage(LoggerTags::WHITE, LoggerTags::DEBUG, message);
 }
 
@@ -74,9 +79,7 @@ void Logger::handleMessage(const char *color, const char *typeHeader, const char
 {
     resetTime();
     printMessage(color, typeHeader, message);
-    bufferedLogging == BUFFERED_LOGGING::ON ? 
-        stackMessage(message, typeHeader) : 
-        writeMessage(message, typeHeader);
+    bufferedLogging == BUFFERED_LOGGING::ON ? stackMessage(message, typeHeader) : writeMessage(message, typeHeader);
 }
 
 void Logger::printSystemMessage(const char *message)
@@ -86,14 +89,14 @@ void Logger::printSystemMessage(const char *message)
 
 void Logger::printMessage(const char *color, const char *typeHeader, const char *message)
 {
-    printf("%s%s%s%s%s %s -%s", LoggerTags::CLR_ESC, color, typeHeader, LoggerTags::CLR_ESC, LoggerTags::RESET, message, ctime(&currentTime));
+    printf("%s%s%s%s%s %s |%s", LoggerTags::CLR_ESC, color, typeHeader, LoggerTags::CLR_ESC, LoggerTags::RESET, message, ctime(&currentTime));
 }
 
 void Logger::flush()
 {
     if (messageStack.empty())
     {
-        printSystemMessage("flush: Trying to flush empty container."); //TODO DEBUG
+        printSystemMessage("flush: Trying to flush empty container.");
         return;
     }
 
@@ -113,7 +116,9 @@ void Logger::stackMessage(const char *message, const char *typeHeader)
 {
     if (messageStack.capacity() == 0)
     {
-        if (debugMode == DEBUG_MODE::ON) printSystemMessage("stackMessage: Not enough capacity. Extending...");
+        if (debugMode == DEBUG_MODE::ON)
+        printSystemMessage("stackMessage: Not enough capacity. Extending...");
+
         messageStack.reserve(userStackSize);
     }
 
@@ -121,7 +126,9 @@ void Logger::stackMessage(const char *message, const char *typeHeader)
 
     if (messageStack.size() >= userStackSize || strcmp(typeHeader, LoggerTags::ERROR) == 0)
     {
-        if (debugMode == DEBUG_MODE::ON) printSystemMessage("stackMessage: Container full or message of type [ERROR] = flush()");
+        if (debugMode == DEBUG_MODE::ON)
+        printSystemMessage("stackMessage: Container full or message of type [ERROR] = flush()");
+
         flush();
     }
 }
@@ -146,21 +153,27 @@ void Logger::writeMessage(const char *message, const char *typeHeader)
 
 void Logger::write(const char *message, const char *typeHeader, time_t time)
 {
-    logFile  << typeHeader << ": " << message << " - " << (time ? ctime(&time) : ctime(&currentTime));
+    logFile << typeHeader << ": " << message << " |" << (time ? ctime(&time) : ctime(&currentTime));
 }
 
 void Logger::finalCleanup()
 {
-    if (bufferedLogging == BUFFERED_LOGGING::ON && !messageStack.empty())
+    if (bufferedLogging == BUFFERED_LOGGING::ON && messageStack.empty())
     {
         flush();
     }
     printSystemMessage(LoggerTags::EXIT_MESSAGE);
+    writeMessage(LoggerTags::EXIT_MESSAGE, LoggerTags::LOGGER);
 }
 
 void Logger::fileCheck()
 {
     logFile.open(userFileName, std::ios::out | std::ios::app);
-    if (logFile.bad()) logFile.open(userFileName, std::ios::out | std::ios::trunc);
+    if (logFile.bad())
+    {
+        printSystemMessage("Logging file doesn't exist. Creating new one.");
+        logFile.open(userFileName, std::ios::out | std::ios::trunc);
+    }
+
     logFile.close();
 }
