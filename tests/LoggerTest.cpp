@@ -19,7 +19,7 @@ public:
     static std::string testString;
     static std::string requiredString;
 
-    inline static void initTest() 
+    inline static void initTest()
     {
         Logger::init(Logger::DEBUG_MODE::ON, Logger::BUFFERED_LOGGING::ON, 10, "testLog.txt");
         if (testFile.peek() == std::ifstream::traits_type::eof())
@@ -52,19 +52,20 @@ public:
     inline static void writeMessageTest()
     {
         Logger::writeMessage("Info test", "[INFO]");
-        requiredString = "[INFO]: Info test - " + std::string(ctime(&Logger::currentTime));
+        requiredString = "[INFO]: Info test |" + std::string(ctime(&Logger::currentTime));
         testFile.open(Logger::userFileName);
-        
+
+        getline(testFile, testString);
         getline(testFile, testString);
         testString.append("\n");
         testFile.close();
+        remove(Logger::userFileName);
         if (testString.compare(requiredString) == 0)
             return;
 
         state = FAILURE;
         std::cout << "LoggeTest::info: Messages doesn't match: " << testString << "\n"
                   << "VS. " << requiredString;
-        remove(Logger::userFileName);
     }
 };
 
