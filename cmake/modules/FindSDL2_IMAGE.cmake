@@ -94,8 +94,8 @@ FIND_PATH(SDL2_IMAGE_INCLUDE_DIR SDL_image.h
         $ENV{SDL2}
         $ENV{SDL2_IMAGE}
         PATH_SUFFIXES include/SDL2 include SDL2
-        i686-w64-mingw32/include/SDL2
         x86_64-w64-mingw32/include/SDL2
+        i686-w64-mingw32/include/SDL2
         PATHS
         ~/Library/Frameworks
         /Library/Frameworks
@@ -134,6 +134,7 @@ ELSE(CMAKE_SIZEOF_VOID_P EQUAL 8)
             $ENV{SDL2_IMAGE}
             PATH_SUFFIXES lib
             lib/x86
+            x86_64-w64-mingw32/lib
             i686-w64-mingw32/lib
             PATHS
             /sw

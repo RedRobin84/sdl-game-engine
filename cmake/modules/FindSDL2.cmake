@@ -108,8 +108,8 @@ FIND_PATH(SDL2_INCLUDE_DIR SDL.h
         ${SDL2}
         $ENV{SDL2}
         PATH_SUFFIXES include/SDL2 include SDL2
-        i686-w64-mingw32/include/SDL2
         x86_64-w64-mingw32/include/SDL2
+        i686-w64-mingw32/include/SDL2
         PATHS
         ~/Library/Frameworks
         /Library/Frameworks
@@ -144,6 +144,7 @@ ELSE(CMAKE_SIZEOF_VOID_P EQUAL 8)
             $ENV{SDL2}
             PATH_SUFFIXES lib
             lib/x86
+            x86_64-w64-mingw32/lib
             i686-w64-mingw32/lib
             PATHS
             /sw
@@ -184,6 +185,7 @@ IF(NOT SDL2_BUILDING_LIBRARY)
                     $ENV{SDL2}
                     PATH_SUFFIXES lib
                     lib/x86
+                    x86_64-w64-mingw32/lib
                     i686-w64-mingw32/lib
                     PATHS
                     /sw

@@ -49,6 +49,10 @@
         "map": "cpp",
         "iomanip": "cpp"
     },
+    "cmake.mingwSearchDirs": [
+        "C:/mingw64/bin"
+    ],
+    "cmake.generator": "MinGW Makefiles",
     "cmake.configureOnOpen": true,
     "cmake.configureArgs": ["-DCMAKE_PREFIX_PATH=C:/SDL2-2.0.14;C:/SDL2_image-2.0.5;C:/SDL2_ttf-2.0.15;"]
 }

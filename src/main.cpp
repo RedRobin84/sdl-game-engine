@@ -1,8 +1,8 @@
 #include "ProgramSwitcher.h"
 #include "Logger.h"
+#include "SDL_platform.h"
 
 #include <iostream>
-#include <SDL2/SDL.h>
 
 int main(int argc, char *args[])
 {
