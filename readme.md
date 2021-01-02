@@ -4,10 +4,10 @@ Cross-platform(Linux, Mac)
 
 DONE:
 
-TODO:
-
 Logger
     - Add debug mode
+
+TODO:
     - c-style buffering
     - typeHeader to enum
 

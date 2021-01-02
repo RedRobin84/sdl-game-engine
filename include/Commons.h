@@ -1,6 +1,12 @@
-/*#pragma once
+#pragma once
 
-#include "LTexture.h"
+enum class State
+{
+    FAILURE,
+    SUCCESS
+};
+
+/*#include "LTexture.h"
 
 #include <SDL2/SDL.h>
 

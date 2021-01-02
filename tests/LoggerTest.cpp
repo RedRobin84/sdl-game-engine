@@ -1,15 +1,8 @@
 #include "Logger.h"
 #include "Strings.h"
+#include "Commons.h"
 #include <string>
-#include <iostream>
-#include <sstream>
 #include <unistd.h>
-
-enum State
-{
-    SUCCESS,
-    FAILURE
-};
 
 class LoggerTest
 {
@@ -24,8 +17,8 @@ public:
         Logger::init(Logger::DEBUG_MODE::ON, Logger::BUFFERED_LOGGING::ON, 10, "testLog.txt");
         if (testFile.peek() == std::ifstream::traits_type::eof())
             return;
-        printf("initTest: File is not empty");
-        state = FAILURE;
+        printf("initTest: File is not empty\n");
+        state = State::FAILURE;
     }
     inline static void openFileTest()
     {
@@ -35,8 +28,8 @@ public:
             testFile.close();
             return;
         }
-        state = FAILURE;
-        std::cout << "Unable to open file from path\n";
+        state = State::FAILURE;
+        printf("openFileTest: Unable to open file from path\n");
     }
     inline static void resetTimeTest()
     {
@@ -47,25 +40,26 @@ public:
             return;
 
         printf("resetTimeTest: Time before reset (%f) is not older than new time(%f).\n", (double)Logger::currentTime, (double)oldTime);
-        state = FAILURE;
+        state = State::FAILURE;
     }
-    inline static void writeMessageTest()
+    inline static void infoMessageTest()
     {
-        Logger::writeMessage("Info test", "[INFO]");
-        requiredString = "[INFO]: Info test |" + std::string(ctime(&Logger::currentTime));
+        int i = 3;
+        const char * string = "test string";
+        Logger::info("Test: number = %d, string = %s", i, string);
+
+        requiredString = "[" + std::string(std::strtok(ctime(&Logger::currentTime), "\n")) + "]" + "[INFO]: Test: number = 3, string = test string";
         testFile.open(Logger::userFileName);
 
         getline(testFile, testString);
         getline(testFile, testString);
-        testString.append("\n");
         testFile.close();
         remove(Logger::userFileName);
         if (testString.compare(requiredString) == 0)
             return;
 
-        state = FAILURE;
-        std::cout << "LoggeTest::info: Messages doesn't match: " << testString << "\n"
-                  << "VS. " << requiredString;
+        state = State::FAILURE;
+        printf("LoggeTest::info: Messages doesn't match: %s\nVS. %s ", testString.data(), requiredString.data());
     }
 };
 
@@ -79,6 +73,6 @@ int main()
     LoggerTest::initTest();
     LoggerTest::openFileTest();
     LoggerTest::resetTimeTest();
-    LoggerTest::writeMessageTest();
-    return LoggerTest::state;
+    LoggerTest::infoMessageTest();
+    return !(LoggerTest::state == State::SUCCESS);
 }
