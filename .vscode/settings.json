@@ -49,5 +49,9 @@
         "map": "cpp",
         "iomanip": "cpp"
     },
+    "cmake.mingwSearchDirs": [
+        "C:/mingw64/bin"
+    ],
+    "cmake.generator": "MinGW Makefiles",
     "cmake.configureOnOpen": true
 }

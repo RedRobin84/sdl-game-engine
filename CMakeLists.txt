@@ -56,14 +56,6 @@ include_directories(include)
 INCLUDE_DIRECTORIES(${SDL2_INCLUDE_DIR} ${SDL2TTF_INCLUDE_DIR} ${SDL2_IMAGE_INCLUDE_DIR})
 TARGET_LINK_LIBRARIES(lazyfoo_cmaketools ${SDL2_LIBRARY} ${SDL2TTF_LIBRARY} ${SDL2_IMAGE_LIBRARY})
 
-# Copy SDL2 DLLs to output folder on Windows
-if(WIN32)
-    foreach(DLL ${SDL2_DLLS})
-        add_custom_command(TARGET lazyfoo_cmaketools POST_BUILD COMMAND
-            ${CMAKE_COMMAND} -E copy_if_different ${DLL} $<TARGET_FILE_DIR:lazyfoo_cmaketools>)
-    endforeach()
-endif()
-
 #tests
 
 enable_testing()
