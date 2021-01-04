@@ -22,43 +22,43 @@ void Logger::init(DEBUG_MODE dm, BUFFERED_LOGGING bl, const size_t userSize, con
     userBufferSize = userBS;
     resetTime();
     fileCheck();
-    printSystemMessage(LoggerTags::INIT_MESSAGE);
+    printMessage(MsgType::LOGGER, LoggerTags::INIT_MESSAGE);
     writeMessage(LoggerTags::INIT_MESSAGE);
-    printSystemMessage(debugMode == DEBUG_MODE::ON ? LoggerTags::DEBUG_MODE_ON : LoggerTags::DEBUG_MODE_OFF);
-    printSystemMessage(bufferedLogging == BUFFERED_LOGGING::ON ? LoggerTags::BUFFERED_LOGGING_ON : LoggerTags::BUFFERED_LOGGING_OFF);
+    debug(debugMode == DEBUG_MODE::ON ? LoggerTags::DEBUG_MODE_ON : LoggerTags::DEBUG_MODE_OFF);
+    debug(bufferedLogging == BUFFERED_LOGGING::ON ? LoggerTags::BUFFERED_LOGGING_ON : LoggerTags::BUFFERED_LOGGING_OFF);
 }
 
 void Logger::enableBufferedLogging()
 {
     if (bufferedLogging == BUFFERED_LOGGING::ON)
     {
-        printSystemMessage("Buffered logging already on.");
+        debug("Logger::enableBufferedLogging: Buffered logging already on.");
         return;
     }
 
     bufferedLogging = BUFFERED_LOGGING::ON;
-    messageStack.reserve(userStackSize);
-    printSystemMessage(LoggerTags::BUFFERED_LOGGING_ON);
+    messageStack.reserve(userStackSize + FLUSH_LOG_RESERVE);
+    printf(LoggerTags::BUFFERED_LOGGING_ON);
 }
 void Logger::disableBufferedLogging()
 {
     if (bufferedLogging == BUFFERED_LOGGING::OFF)
     {
-        printSystemMessage("Buffered logging already off.");
+        debug("Logger::disableBufferedLogging: Buffered logging already off.");
         return;
     }
 
     bufferedLogging = BUFFERED_LOGGING::OFF;
     flush();
     messageStack.clear();
-    printSystemMessage(LoggerTags::BUFFERED_LOGGING_OFF);
+    debug(LoggerTags::BUFFERED_LOGGING_OFF);
 }
 
 void Logger::info(const char *message, ...)
 {
     va_list args;
     va_start(args, message);
-    handleMessage(LoggerTags::GREEN, MsgType::INFO, message, args);
+    handleMessage(MsgType::INFO, message, args);
     va_end(args);
 }
 
@@ -66,7 +66,7 @@ void Logger::warn(const char *message, ...)
 {
     va_list args;
     va_start(args, message);
-    handleMessage(LoggerTags::YELLOW, MsgType::WARN, message, args);
+    handleMessage(MsgType::WARN, message, args);
     va_end(args);
 }
 
@@ -74,7 +74,7 @@ void Logger::error(const char *message, ...)
 {
     va_list args;
     va_start(args, message);
-    handleMessage(LoggerTags::RED, MsgType::ERROR, message, args);
+    handleMessage(MsgType::ERROR, message, args);
     va_end(args);
 }
 
@@ -85,36 +85,28 @@ void Logger::debug(const char *message, ...)
 
     va_list args;
     va_start(args, message);
-    handleMessage(LoggerTags::WHITE, MsgType::DEBUG, message, args);
+    handleMessage(MsgType::DEBUG, message, args);
     va_end(args);
 }
 
-void Logger::handleMessage(const char *color, MsgType msgType, const char *message, va_list args)
+void Logger::handleMessage(MsgType msgType, const char *message, va_list args)
 {
     resetTime();
-    va_list argsCopy;
-    va_copy(argsCopy, args);
-    State state = printMessage(color, msgType, message, argsCopy);
-    va_end(argsCopy);
+    std::unique_ptr<const char[]> formattedMessage = createMessageFromFormat(message, args);
+    if (formattedMessage == nullptr)
+        return;
+
+    State state = printMessage(msgType, formattedMessage.get());
     if (state == State::FAILURE)
         return;
 
-    std::unique_ptr<char[]> msg = createMessageForWrite(color, msgType, message, args);
+    std::unique_ptr<char[]> msg = createMessageForWrite(msgType, formattedMessage.get());
     bufferedLogging == BUFFERED_LOGGING::ON ? stackMessage(std::move(msg), msgType) : writeMessage(msg.get());
 }
 
-void Logger::printSystemMessage(const char *message, ...)
+State Logger::printMessage(MsgType msgType, const char *message)
 {
-    va_list args;
-    va_start(args, message);
-    printMessage(LoggerTags::CYAN, MsgType::LOGGER, message, args);
-    va_end(args);
-}
-
-State Logger::printMessage(const char *color, MsgType msgType, const char *message, va_list args)
-{
-
-    std::unique_ptr<char[]> msg = createMessageForPrint(color, msgType, message, args);
+    std::unique_ptr<const char[]> msg = createMessageForPrint(msgType, message);
 
     if (msg == nullptr)
         return State::FAILURE;
@@ -123,31 +115,41 @@ State Logger::printMessage(const char *color, MsgType msgType, const char *messa
     return State::SUCCESS;
 }
 
-std::unique_ptr<char[]> Logger::createMessageForPrint(const char *color, MsgType msgType, const char *message, va_list args)
+std::unique_ptr<const char[]> Logger::createMessageFromFormat(const char *message, va_list args)
 {
-    std::unique_ptr<char[]> buffer(new char[userBufferSize]);
-    int formatCharCount = snprintf(buffer.get(), userBufferSize, "[%s]%s%s%s%s%s %s", std::strtok(ctime(&currentTime), "\n"), LoggerTags::CLR_ESC, color, getTypeString(msgType), LoggerTags::CLR_ESC, LoggerTags::RESET, message);
+    char buffer[userBufferSize];
+    int formatCharCount = vsnprintf(buffer, sizeof buffer, message, args);
 
     if (hasBadFormat(formatCharCount, message))
         return nullptr;
-    else if (isTooBig(formatCharCount, userBufferSize))
-        printSystemMessage("Too big string. Saved only first %d characters from %zu", formatCharCount, userBufferSize);
+    else if (isTooBig(formatCharCount, sizeof buffer))
+        warn("Logger::createMessageFromFormat: Too big string. Saved only first %zu characters from %zu", sizeof buffer, strlen(message));
 
-    int withArgsCount = vsnprintf(buffer.get(), userBufferSize, buffer.get(), args);
+    std::unique_ptr<char[]> msg(new char[strlen(buffer) + 1]);
+    strcpy(msg.get(), buffer);
+    return msg;
+}
 
-    if (hasBadFormat(withArgsCount, message))
+std::unique_ptr<const char[]> Logger::createMessageForPrint(MsgType msgType, const char *message)
+{
+    char buffer[userBufferSize];
+    int formatCharCount = snprintf(buffer, sizeof buffer, "[%s]%s%s%s%s%s %s", std::strtok(ctime(&currentTime), "\n"), LoggerTags::CLR_ESC, getColorString(msgType), getTypeString(msgType), LoggerTags::CLR_ESC, LoggerTags::RESET, message);
+
+    if (hasBadFormat(formatCharCount, message))
         return nullptr;
-    else if (isTooBig(withArgsCount, userBufferSize))
-        printSystemMessage("Too big string. Saved only first %d characters from %zu", withArgsCount, userBufferSize);
+    else if (isTooBig(formatCharCount, sizeof buffer))
+        warn("Logger::createMessageForPrint: Too big string. Saved only first %d characters from %zu", sizeof buffer, strlen(message));
 
-    return buffer;
+    std::unique_ptr<char[]> msg(new char[strlen(buffer) + 1]);
+    strcpy(msg.get(), buffer);
+    return msg;
 }
 
 bool Logger::hasBadFormat(int count, const char *message)
 {
     if (count < 0)
     {
-        printSystemMessage("Bad string format for [%s]", message);
+        error("Logger::hasBadFirnat: Bad string format for [%s]", message);
         return true;
     }
     return false;
@@ -158,14 +160,13 @@ bool Logger::isTooBig(int count, size_t bufferSize)
     return count >= bufferSize;
 }
 
-std::unique_ptr<char[]> Logger::createMessageForWrite(const char *color, MsgType msgType, const char *message, va_list args)
+std::unique_ptr<char[]> Logger::createMessageForWrite(MsgType msgType, const char *message)
 {
-    std::unique_ptr<char[]> buffer(new char[userBufferSize]);
-    int formatCharCount = snprintf(buffer.get(), userBufferSize, "[%s]%s: %s", std::strtok(ctime(&currentTime), "\n"), getTypeString(msgType), message);
-    int withArgsCount = vsnprintf(buffer.get(), userBufferSize, buffer.get(), args);
+    char buffer[userBufferSize];
+    int formatCharCount = snprintf(buffer, sizeof buffer, "[%s]%s: %s", std::strtok(ctime(&currentTime), "\n"), getTypeString(msgType), message);
 
-    std::unique_ptr<char[]> msg(new char[strlen(buffer.get()) + 1]);
-    strcpy(msg.get(), buffer.get());
+    std::unique_ptr<char[]> msg(new char[strlen(buffer) + 1]);
+    strcpy(msg.get(), buffer);
     return msg;
 }
 
@@ -173,30 +174,30 @@ void Logger::flush()
 {
     if (messageStack.empty())
     {
-        printSystemMessage("flush: Trying to flush empty container.");
+        warn("Logger::flush: Trying to flush empty container.");
         return;
     }
 
     logFile = fopen(userFileName, "a");
     if (logFile == NULL)
     {
-        printSystemMessage("writeMessage: Unable to write to file!");
+        error("Logger::writeMessage: Unable to write to file!");
         return;
     }
     std::for_each(begin(messageStack), end(messageStack), [](auto const &message) { write(message.get()); });
     fclose(logFile);
     messageStack.clear();
-    messageStack.reserve(userStackSize);
+    messageStack.reserve(userStackSize + FLUSH_LOG_RESERVE);
 }
 
 void Logger::stackMessage(std::unique_ptr<char[]> message, MsgType msgType)
 {
     if (messageStack.capacity() == 0)
     {
-        if (debugMode == DEBUG_MODE::ON)
-            printSystemMessage("stackMessage: Not enough capacity. Extending...");
+        messageStack.reserve(userStackSize + FLUSH_LOG_RESERVE);
 
-        messageStack.reserve(userStackSize);
+        if (debugMode == DEBUG_MODE::ON)
+            debug("Logger::stackMessage: Not enough capacity. Extending...");
     }
 
     messageStack.emplace_back(std::move(message));
@@ -204,7 +205,7 @@ void Logger::stackMessage(std::unique_ptr<char[]> message, MsgType msgType)
     if (messageStack.size() >= userStackSize || msgType == MsgType::ERROR)
     {
         if (debugMode == DEBUG_MODE::ON)
-            printSystemMessage("stackMessage: Container full or message of type [ERROR] = flush()");
+            debug("Logger::stackMessage: Container full or message of type [ERROR] = flush()");
 
         flush();
     }
@@ -221,7 +222,7 @@ void Logger::writeMessage(const char *message)
 
     if (logFile == NULL)
     {
-        printSystemMessage("writeMessage: Unable to write to file!");
+        error("Logger::writeMessage: Unable to write to file!");
         return;
     }
     write(message);
@@ -236,12 +237,13 @@ void Logger::write(const char *message)
 
 void Logger::finalCleanup()
 {
-    if (bufferedLogging == BUFFERED_LOGGING::ON && messageStack.empty())
+    if (bufferedLogging == BUFFERED_LOGGING::ON && !messageStack.empty())
     {
         flush();
     }
-    printSystemMessage(LoggerTags::EXIT_MESSAGE);
+    printMessage(MsgType::LOGGER, LoggerTags::EXIT_MESSAGE);
     writeMessage(LoggerTags::EXIT_MESSAGE);
+    writeMessage(" ");
 }
 
 void Logger::fileCheck()
@@ -249,7 +251,7 @@ void Logger::fileCheck()
     logFile = fopen(userFileName, "a");
     if (logFile == NULL)
     {
-        printSystemMessage("writeMessage: Unable to write to file!");
+        error("Logger::writeMessage: Unable to write to file!");
         return;
     }
 
@@ -270,5 +272,22 @@ const char *Logger::getTypeString(MsgType msgType)
         return LoggerTags::ERROR;
     case MsgType::LOGGER:
         return LoggerTags::LOGGER;
+    }
+}
+
+const char *Logger::getColorString(MsgType msgType)
+{
+    switch (msgType)
+    {
+    case MsgType::DEBUG:
+        return LoggerTags::CYAN;
+    case MsgType::INFO:
+        return LoggerTags::GREEN;
+    case MsgType::WARN:
+        return LoggerTags::YELLOW;
+    case MsgType::ERROR:
+        return LoggerTags::RED;
+    case MsgType::LOGGER:
+        return LoggerTags::WHITE;
     }
 }
