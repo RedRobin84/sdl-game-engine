@@ -1,17 +1,31 @@
 MY_FIRST_ENGINE
 
-Cross-platform(Linux, Mac)
+Study project for practicing both legacy and modern C++ features.
 
-DONE:
+PRACTICE CONTENTS:
 
-Logger
-    - Add debug mode
+Legacy C and C++:
 
-TODO:
-    - c-style buffering
-    - typeHeader to enum
+- enum flags and bitwise operators
+- c string usage, manipulation, char buffers
+- dynamic memory allocation
+
+Design Patterns:
+
+- Monostate(Logger)
+
+C++11:
+
+- smart pointers
+
+DevOps etc.:
+
+- built with Cmake using CMake Tools on Visual Studio Code
+- Cross-platform development: (Linux(GCC), Mac(Clang), Windows(MinGW GCC))
 
 Testing framework (CTest variant)
+
+TODO:
 
 Engine:
     - more info logs, debug logs...

@@ -6,7 +6,7 @@
 
 int main(int argc, char *args[])
 {
-    Logger::init(Logger::DEBUG_MODE::ON, Logger::BUFFERED_LOGGING::ON);
+    Logger::init(Logger::WRITE_TO_FILE | Logger::BUFFERED_LOGGING | Logger::DEBUG_MODE);
     try
     {
         ProgramSwitcher ps;

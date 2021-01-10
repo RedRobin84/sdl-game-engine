@@ -8,47 +8,59 @@ std::vector<std::unique_ptr<char[]>> Logger::messageStack;
 time_t Logger::currentTime;
 FILE *Logger::logFile;
 const char *Logger::userFileName = DEFAULT_FILE_NAME;
-Logger::BUFFERED_LOGGING Logger::bufferedLogging = BUFFERED_LOGGING::OFF;
-Logger::DEBUG_MODE Logger::debugMode = DEBUG_MODE::OFF;
+uint8_t Logger::options = Logger::LOGGER_DEFAULT;
 size_t Logger::userStackSize = DEFAULT_STACK_SIZE;
 uint16_t Logger::userBufferSize = DEFAULT_BUFFER_SIZE;
 
-void Logger::init(DEBUG_MODE dm, BUFFERED_LOGGING bl, const size_t userSize, const char *userFN, const uint16_t userBS)
+void Logger::init(uint8_t opts, const char *userFN, const size_t userSize, const uint16_t userBS)
 {
-    debugMode = dm;
-    bufferedLogging = bl;
-    userStackSize = userSize;
+    options = setOptions(opts);
     userFileName = userFN;
+    userStackSize = userSize;
     userBufferSize = userBS;
     resetTime();
     fileCheck();
     printMessage(MsgType::LOGGER, LoggerTags::INIT_MESSAGE);
-    writeMessage(LoggerTags::INIT_MESSAGE);
-    debug(debugMode == DEBUG_MODE::ON ? LoggerTags::DEBUG_MODE_ON : LoggerTags::DEBUG_MODE_OFF);
-    debug(bufferedLogging == BUFFERED_LOGGING::ON ? LoggerTags::BUFFERED_LOGGING_ON : LoggerTags::BUFFERED_LOGGING_OFF);
+    if (options & BUFFERED_LOGGING) 
+        messageStack.reserve(userStackSize + FLUSH_LOG_RESERVE);
+    if (options & WRITE_TO_FILE)
+        writeMessage(LoggerTags::INIT_MESSAGE);
+    debug(options & WRITE_TO_FILE ? LoggerTags::WRITE_TO_FILE_ON : LoggerTags::WRITE_TO_FILE_OFF);
+    debug(options & BUFFERED_LOGGING ? LoggerTags::BUFFERED_LOGGING_ON : LoggerTags::BUFFERED_LOGGING_OFF);
+    debug(options & DEBUG_MODE ? LoggerTags::DEBUG_MODE_ON : LoggerTags::DEBUG_MODE_OFF);
+}
+
+uint8_t Logger::setOptions(uint8_t values)
+{
+    if (!(values & WRITE_TO_FILE) && (values & BUFFERED_LOGGING))
+    {
+        warn("Logger::setOptions: Buffered logging is redundant while write to file is set off. Setting buffered logging off.");
+        values &= ~BUFFERED_LOGGING;
+    }
+    return values;
 }
 
 void Logger::enableBufferedLogging()
 {
-    if (bufferedLogging == BUFFERED_LOGGING::ON)
+    if (options & BUFFERED_LOGGING)
     {
         debug("Logger::enableBufferedLogging: Buffered logging already on.");
         return;
     }
 
-    bufferedLogging = BUFFERED_LOGGING::ON;
+    options |= BUFFERED_LOGGING;
     messageStack.reserve(userStackSize + FLUSH_LOG_RESERVE);
     printf(LoggerTags::BUFFERED_LOGGING_ON);
 }
 void Logger::disableBufferedLogging()
 {
-    if (bufferedLogging == BUFFERED_LOGGING::OFF)
+    if (!(options & BUFFERED_LOGGING))
     {
         debug("Logger::disableBufferedLogging: Buffered logging already off.");
         return;
     }
 
-    bufferedLogging = BUFFERED_LOGGING::OFF;
+    options &= ~BUFFERED_LOGGING;
     flush();
     messageStack.clear();
     debug(LoggerTags::BUFFERED_LOGGING_OFF);
@@ -80,12 +92,20 @@ void Logger::error(const char *message, ...)
 
 void Logger::debug(const char *message, ...)
 {
-    if (bufferedLogging == BUFFERED_LOGGING::OFF)
+    if (!(options & BUFFERED_LOGGING))
         return;
 
     va_list args;
     va_start(args, message);
     handleMessage(MsgType::DEBUG, message, args);
+    va_end(args);
+}
+
+void Logger::system(const char *message, ...)
+{
+    va_list args;
+    va_start(args, message);
+    handleMessage(MsgType::LOGGER, message, args);
     va_end(args);
 }
 
@@ -101,7 +121,11 @@ void Logger::handleMessage(MsgType msgType, const char *message, va_list args)
         return;
 
     std::unique_ptr<char[]> msg = createMessageForWrite(msgType, formattedMessage.get());
-    bufferedLogging == BUFFERED_LOGGING::ON ? stackMessage(std::move(msg), msgType) : writeMessage(msg.get());
+
+    if (options &WRITE_TO_FILE)
+    {
+        options &BUFFERED_LOGGING ? stackMessage(std::move(msg), msgType) : writeMessage(msg.get());
+    }
 }
 
 State Logger::printMessage(MsgType msgType, const char *message)
@@ -196,7 +220,7 @@ void Logger::stackMessage(std::unique_ptr<char[]> message, MsgType msgType)
     {
         messageStack.reserve(userStackSize + FLUSH_LOG_RESERVE);
 
-        if (debugMode == DEBUG_MODE::ON)
+        if (options & DEBUG_MODE)
             debug("Logger::stackMessage: Not enough capacity. Extending...");
     }
 
@@ -204,7 +228,7 @@ void Logger::stackMessage(std::unique_ptr<char[]> message, MsgType msgType)
 
     if (messageStack.size() >= userStackSize || msgType == MsgType::ERROR)
     {
-        if (debugMode == DEBUG_MODE::ON)
+        if (options & DEBUG_MODE)
             debug("Logger::stackMessage: Container full or message of type [ERROR] = flush()");
 
         flush();
@@ -237,7 +261,7 @@ void Logger::write(const char *message)
 
 void Logger::finalCleanup()
 {
-    if (bufferedLogging == BUFFERED_LOGGING::ON && !messageStack.empty())
+    if ((options & BUFFERED_LOGGING) && !messageStack.empty())
     {
         flush();
     }
@@ -280,7 +304,7 @@ const char *Logger::getColorString(MsgType msgType)
     switch (msgType)
     {
     case MsgType::DEBUG:
-        return LoggerTags::CYAN;
+        return LoggerTags::MAGENTA;
     case MsgType::INFO:
         return LoggerTags::GREEN;
     case MsgType::WARN:
@@ -288,6 +312,6 @@ const char *Logger::getColorString(MsgType msgType)
     case MsgType::ERROR:
         return LoggerTags::RED;
     case MsgType::LOGGER:
-        return LoggerTags::WHITE;
+        return LoggerTags::CYAN;
     }
 }

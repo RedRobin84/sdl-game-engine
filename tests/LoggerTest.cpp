@@ -14,7 +14,7 @@ public:
 
     inline static void initTest()
     {
-        Logger::init(Logger::DEBUG_MODE::ON, Logger::BUFFERED_LOGGING::OFF, 10, "testLog.txt");
+        Logger::init(Logger::WRITE_TO_FILE, "testLog.txt");
         if (testFile.peek() == std::ifstream::traits_type::eof())
             return;
         printf("initTest: File is not empty\n");
