@@ -1,6 +1,7 @@
 #include "Logger.h"
 #include "Strings.h"
 #include "Commons.h"
+#include <cstring>
 #include <string>
 #include <unistd.h>
 

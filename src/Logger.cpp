@@ -1,5 +1,6 @@
 #include "Logger.h"
 
+#include <stdarg.h>
 #include <cstring>
 #include <algorithm>
 #include <chrono>
