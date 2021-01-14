@@ -2,13 +2,8 @@
 #include "Strings.h"
 #include "Commons.h"
 
-
-#include <chrono>
-#include <thread>
 #include <cstring>
 #include <string>
-
-using namespace std::literals::chrono_literals;
 
 class LoggerTest
 {
@@ -35,18 +30,7 @@ public:
             return;
         }
         state = State::FAILURE;
-        printf("openFileTest: Unable to open file from path\n");
-    }
-    inline static void resetTimeTest()
-    {
-        time_t oldTime = Logger::currentTime;
-        std::this_thread::sleep_for(1000ms);
-        Logger::resetTime();
-        if (Logger::currentTime > oldTime)
-            return;
-
-        printf("resetTimeTest: Time before reset (%f) is not older than new time(%f).\n", (double)Logger::currentTime, (double)oldTime);
-        state = State::FAILURE;
+        printf("openFileTest: Unable to open file from path");
     }
     inline static void infoMessageTest()
     {
@@ -77,7 +61,6 @@ int main()
 {
     LoggerTest::initTest();
     LoggerTest::openFileTest();
-    LoggerTest::resetTimeTest();
     LoggerTest::infoMessageTest();
     return !(LoggerTest::state == State::SUCCESS);
 }
