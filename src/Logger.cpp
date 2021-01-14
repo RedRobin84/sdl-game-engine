@@ -171,11 +171,7 @@ std::unique_ptr<const char[]> Logger::createMessageForPrint(MsgType msgType, con
 std::unique_ptr<char[]> Logger::createNewStringFromBuffer(const char *buffer, size_t newSize)
 {
     std::unique_ptr<char[]> msg(new char[newSize]);
-    if (strcpy_s(msg.get(), newSize, buffer)) 
-    {
-        error("Logger::createMessageFromFormat: Failed to copy string to new buffer.");
-        return nullptr;
-    }
+    strcpy(msg.get(), buffer);
     return msg;
 }
 

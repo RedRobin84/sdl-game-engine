@@ -40,6 +40,7 @@ public:
     inline static void resetTimeTest()
     {
         time_t oldTime = Logger::currentTime;
+        std::this_thread::sleep_for(1000ms);
         Logger::resetTime();
         if (Logger::currentTime > oldTime)
             return;
@@ -52,7 +53,6 @@ public:
         int i = 3;
         const char * string = "test string";
         Logger::info("Test: number = %d, string = %s", i, string);
-
         requiredString = "[" + std::string(std::strtok(ctime(&Logger::currentTime), "\n")) + "]" + "[INFO]: Test: number = 3, string = test string";
         testFile.open(Logger::userFileName);
 
