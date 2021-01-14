@@ -2,6 +2,7 @@
 
 #include "ProgramTypeEnum.h"
 
+#include <string>
 #include <map>
 #include <memory>
 
@@ -10,9 +11,7 @@ class Program;
 using ProgramNameMap = std::map<ProgramTypeEnum, const std::string &>;
 
 class ProgramType
-{
-
-    
+{   
 
 public:
 

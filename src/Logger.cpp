@@ -149,9 +149,8 @@ std::unique_ptr<const char[]> Logger::createMessageFromFormat(const char *messag
         return nullptr;
     else if (isTooBig(formatCharCount, sizeof buffer))
         warn("Logger::createMessageFromFormat: Too big string. Saved only first %zu characters from %zu", sizeof buffer, strlen(message));
-
-    std::unique_ptr<char[]> msg(new char[strlen(buffer) + 1]);
-    strcpy(msg.get(), buffer);
+    
+    std::unique_ptr<char[]> msg = createNewStringFromBuffer(buffer, strlen(buffer) + 1);
     return msg;
 }
 
@@ -165,8 +164,18 @@ std::unique_ptr<const char[]> Logger::createMessageForPrint(MsgType msgType, con
     else if (isTooBig(formatCharCount, sizeof buffer))
         warn("Logger::createMessageForPrint: Too big string. Saved only first %d characters from %zu", sizeof buffer, strlen(message));
 
-    std::unique_ptr<char[]> msg(new char[strlen(buffer) + 1]);
-    strcpy(msg.get(), buffer);
+    std::unique_ptr<char[]> msg = createNewStringFromBuffer(buffer, strlen(buffer) + 1);
+    return msg;
+}
+
+std::unique_ptr<char[]> Logger::createNewStringFromBuffer(const char *buffer, size_t newSize)
+{
+    std::unique_ptr<char[]> msg(new char[newSize]);
+    if (strcpy_s(msg.get(), newSize, buffer)) 
+    {
+        error("Logger::createMessageFromFormat: Failed to copy string to new buffer.");
+        return nullptr;
+    }
     return msg;
 }
 
@@ -190,8 +199,7 @@ std::unique_ptr<char[]> Logger::createMessageForWrite(MsgType msgType, const cha
     char buffer[userBufferSize];
     int formatCharCount = snprintf(buffer, sizeof buffer, "[%s]%s: %s", std::strtok(ctime(&currentTime), "\n"), getTypeString(msgType), message);
 
-    std::unique_ptr<char[]> msg(new char[strlen(buffer) + 1]);
-    strcpy(msg.get(), buffer);
+    std::unique_ptr<char[]> msg = createNewStringFromBuffer(buffer, strlen(buffer) + 1);
     return msg;
 }
 

@@ -1,9 +1,14 @@
 #include "Logger.h"
 #include "Strings.h"
 #include "Commons.h"
+
+
+#include <chrono>
+#include <thread>
 #include <cstring>
 #include <string>
-#include <unistd.h>
+
+using namespace std::literals::chrono_literals;
 
 class LoggerTest
 {
@@ -35,7 +40,6 @@ public:
     inline static void resetTimeTest()
     {
         time_t oldTime = Logger::currentTime;
-        usleep(1000000);
         Logger::resetTime();
         if (Logger::currentTime > oldTime)
             return;

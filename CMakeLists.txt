@@ -12,6 +12,12 @@ endif()
 #path to cmake modules
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/modules)
 
+if(WIN32)
+list(APPEND CMAKE_PREFIX_PATH "C:/SDL2-2.0.14;C:/SDL2_image-2.0.5;C:/SDL2_ttf-2.0.15;")
+endif()
+
+add_definitions(-D_CRT_SECURE_NO_WARNINGS)
+
 file(GLOB SOURCES "src/*.cpp")
 
 add_executable(lazyfoo_cmaketools ${SOURCES})
@@ -55,14 +61,6 @@ ENDIF()
 include_directories(include)
 INCLUDE_DIRECTORIES(${SDL2_INCLUDE_DIR} ${SDL2TTF_INCLUDE_DIR} ${SDL2_IMAGE_INCLUDE_DIR})
 TARGET_LINK_LIBRARIES(lazyfoo_cmaketools ${SDL2_LIBRARY} ${SDL2TTF_LIBRARY} ${SDL2_IMAGE_LIBRARY})
-
-# Copy SDL2 DLLs to output folder on Windows
-if(WIN32)
-    foreach(DLL ${SDL2_DLLS})
-        add_custom_command(TARGET lazyfoo_cmaketools POST_BUILD COMMAND
-            ${CMAKE_COMMAND} -E copy_if_different ${DLL} $<TARGET_FILE_DIR:lazyfoo_cmaketools>)
-    endforeach()
-endif()
 
 #tests
 

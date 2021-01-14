@@ -2,7 +2,6 @@
 
 enum class ProgramTypeEnum : unsigned int
 {
-
     NO_TYPE,
     
     MENU,

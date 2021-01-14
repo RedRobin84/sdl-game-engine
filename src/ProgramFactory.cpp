@@ -1,6 +1,8 @@
 #include "ProgramFactory.h"
 #include "Menu.h"
 
+#include <stdexcept>
+
 std::unique_ptr<Program> ProgramFactory::create(ProgramTypeEnum anEnum)
 {
     switch (anEnum)

@@ -3,6 +3,7 @@
 #include "Strings.h"
 #include "Commons.h"
 
+#include <cstdarg>
 #include <vector>
 #include <fstream>
 #include <ctime>
@@ -58,6 +59,7 @@ static State printMessage(MsgType msgType, const char *message);
 static std::unique_ptr<const char[]> createMessageFromFormat(const char *message, va_list args);
 static std::unique_ptr<const char[]> createMessageForPrint(MsgType msgType, const char *message);
 static std::unique_ptr<char[]> createMessageForWrite(MsgType msgType, const char *message);
+static std::unique_ptr<char[]> createNewStringFromBuffer(const char *buffer, size_t newSize);
 static bool hasBadFormat(int count, const char *message);
 static bool isTooBig(int count, size_t bufferSize);
 static void flush();
