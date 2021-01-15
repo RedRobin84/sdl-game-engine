@@ -8,14 +8,10 @@ namespace ProgramNames
     inline static const std::string AUDIO = "AUDIO";
 } // namespace ProgramNames
 
-namespace Programs
-{
-    namespace Menu
+namespace Programs::Menu
     {
         inline static const std::string SELECT_PROGRAM = "Select a program:";
-    }
-
-} // namespace Programs
+    } // namespace Programs
 
 namespace LoggerTags
 {

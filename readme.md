@@ -34,6 +34,7 @@ Sandbox project for practicing both legacy and modern C++ features.
 - project setup is adapted to **64-bit** environment.
 - **Visual Studio Code** as an IDE
 - **Clang** as a compiler
+- **Clang tools (clang-tidy, clang-format)** 
 
 #### VS Code extensions
 - **clangd** extension - for better intellisense and Clang code checks
