@@ -1,1 +1,11 @@
-Checks: '*,-fuchsia-*,-google-*,-zircon-*,-abseil-*,-modernize-use-trailing-return-type,-llvm-*,-llvmlibc-callee-namespace'
+Checks: '
+        -*,
+        -fuchsia-*,
+        -google-*,
+        -zircon-*,
+        -abseil-*,
+        -modernize-use-trailing-return-type,
+        -llvm-*,-llvmlibc-callee-namespace,
+        -cppcoreguidelines-avoid-non-const-global-variables,
+        -cppcoreguidelines-pro-bounds-array-to-pointer-decay
+        '

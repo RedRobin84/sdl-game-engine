@@ -34,6 +34,6 @@ protected:
     static std::unique_ptr<SDL_Renderer, SDL_Destroyers> m_renderer;
     static std::unique_ptr<SDL_Window, SDL_Destroyers> m_window;
     static SDL_Event event;
-    bool quit;
     bool initialized;
+    bool quit;
 };

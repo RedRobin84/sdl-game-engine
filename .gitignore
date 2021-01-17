@@ -1,8 +1,7 @@
 *build*/
 CMakeLists.txt.user
+CMakeCache.txt
 *~
-/**/*.xcodeproj/**/xcuserdata/
-/**/*.xcodeproj/**/xcshareddata/
 /extern/
 *.pyc
 *.log

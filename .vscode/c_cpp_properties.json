@@ -9,7 +9,7 @@
             "defines": [],
             "compilerPath": "/usr/bin/gcc",
             "cStandard": "gnu17",
-            "cppStandard": "gnu++20",
+            "cppStandard": "c++20",
             "intelliSenseMode": "gcc-x64",
             "configurationProvider": "ms-vscode.cmake-tools"
         },
@@ -25,7 +25,7 @@
             ],
             "compilerPath": "/usr/bin/clang++",
             "cStandard": "gnu17",
-            "cppStandard": "gnu++20",
+            "cppStandard": "c++20",
             "intelliSenseMode": "clang-x64",
             "compileCommands": "${workspaceFolder}/build/compile_commands.json",
             "configurationProvider": "ms-vscode.cmake-tools"
@@ -41,7 +41,7 @@
             "defines": [],
             "compilerPath": "C:/Program Files/LLVM/bin/clang++.exe",
             "cStandard": "gnu17",
-            "cppStandard": "gnu++20",
+            "cppStandard": "c++20",
             "intelliSenseMode": "clang-x64",
             "compileCommands": "${workspaceFolder}/build/compile_commands.json",
             "configurationProvider": "ms-vscode.cmake-tools"

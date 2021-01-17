@@ -1,6 +1,8 @@
 #include "Logger.h"
+#include "Strings.h"
 
-#include <stdarg.h>
+#include <iterator>
+#include <type_traits>
 #include <cstring>
 #include <algorithm>
 #include <chrono>
@@ -190,7 +192,7 @@ bool Logger::hasBadFormat(int count, const char *message)
   return false;
 }
 
-bool Logger::isTooBig(int count, size_t bufferSize)
+bool Logger::isTooBig(int count, int bufferSize)
 {
   return count >= bufferSize;
 }
@@ -198,7 +200,7 @@ bool Logger::isTooBig(int count, size_t bufferSize)
 std::unique_ptr<char[]> Logger::createMessageForWrite(MsgType msgType, const char *message)
 {
   char buffer[userBufferSize];
-  int formatCharCount = snprintf(buffer, sizeof buffer, "[%s]%s: %s", std::strtok(ctime(&currentTime), "\n"), getTypeString(msgType), message);
+  snprintf(buffer, sizeof buffer, "[%s]%s: %s", std::strtok(ctime(&currentTime), "\n"), getTypeString(msgType), message);
 
   std::unique_ptr<char[]> msg = createNewStringFromBuffer(buffer, strlen(buffer) + 1);
   return msg;

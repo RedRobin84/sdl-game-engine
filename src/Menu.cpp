@@ -1,13 +1,15 @@
 #include "Menu.h"
 #include "Logger.h"
+#include "Strings.h"
 
 #include <stdexcept>
 #include <algorithm>
 
 Menu::Menu() : Program(ProgramTypeEnum::MENU),
                TOTAL_DATA(m_programType.getNameMap().size()),
-               m_currentType(ProgramTypeEnum::MENU),
-               m_currentData(0)
+               m_currentData(0),
+               m_currentType(ProgramTypeEnum::MENU)
+               
 {
     init();
     loadMedia();

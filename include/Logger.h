@@ -1,11 +1,11 @@
 #pragma once
 
-#include "Strings.h"
 #include "Commons.h"
 
+#include <stdint.h>
+#include <stdio.h>
 #include <cstdarg>
 #include <vector>
-#include <fstream>
 #include <ctime>
 #include <memory>
 
@@ -63,7 +63,7 @@ private:
   static std::unique_ptr<char[]> createMessageForWrite(MsgType msgType, const char *message);
   static std::unique_ptr<char[]> createNewStringFromBuffer(const char *buffer, size_t newSize);
   static bool hasBadFormat(int count, const char *message);
-  static bool isTooBig(int count, size_t bufferSize);
+  static bool isTooBig(int count, int bufferSize);
   static void flush();
   static void stackMessage(std::unique_ptr<char[]> message, MsgType msgType);
   static void resetTime();

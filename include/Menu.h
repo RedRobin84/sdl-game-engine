@@ -25,7 +25,6 @@ private:
     LTexture m_promptTextTexture;
     SDL_Color m_textColor;
     SDL_Color m_highlightColor;
-	bool renderText;
 
     void loadMedia() override;
     void renderMain() override;
