@@ -58,7 +58,6 @@ inline static const std::string TEST_FILE_NAME{"testLog.txt"};
         Logger::info("Test: number = %d, string = %s", i, string);
         requiredString = "[" + std::string(std::strtok(ctime(&Logger::currentTime), "\n")) + "]" + "[INFO]: Test: number = 3, string = test string";
         testFile.open(Logger::userFileName);
-
         getline(testFile, testString);
         getline(testFile, testString);
         testFile.close();

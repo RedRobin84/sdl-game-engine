@@ -22,7 +22,9 @@ void Logger::init(uint8_t opts, const char *userFN, const size_t userSize, const
   userStackSize = userSize;
   userBufferSize = userBuffSize;
   resetTime();
-  fileCheck();
+  if ((options & WRITE_TO_FILE) != 0) {
+    fileCheck();
+  }
   printMessage(MsgType::LOGGER, LoggerTags::INIT_MESSAGE);
   if ((options & BUFFERED_LOGGING) != 0) {
     messageStack.reserve(userStackSize + FLUSH_LOG_RESERVE);
@@ -213,7 +215,7 @@ void Logger::flush()
     return;
   }
 
-  logFile = fopen(userFileName, "ae");
+  logFile = fopen(userFileName, "a");
   if (logFile == NULL) {
     error("Logger::writeMessage: Unable to write to file!");
     return;
@@ -250,7 +252,7 @@ void Logger::resetTime()
 
 void Logger::writeMessage(const char *message)
 {
-  logFile = fopen(userFileName, "ae");
+  logFile = fopen(userFileName, "a");
 
   if (logFile == NULL) {
     error("Logger::writeMessage: Unable to write to file!");
@@ -278,7 +280,7 @@ void Logger::finalCleanup()
 
 void Logger::fileCheck()
 {
-  logFile = fopen(userFileName, "ae");
+  logFile = fopen(userFileName, "a");
   if (logFile == NULL) {
     error("Logger::writeMessage: Unable to write to file!");
     return;
