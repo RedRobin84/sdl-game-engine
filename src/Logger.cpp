@@ -2,6 +2,7 @@
 #include "Strings.h"
 
 #include <iterator>
+#include <stdexcept>
 #include <type_traits>
 #include <cstring>
 #include <algorithm>
@@ -302,6 +303,8 @@ const char *Logger::getTypeString(MsgType msgType)
     return LoggerTags::ERROR;
   case MsgType::LOGGER:
     return LoggerTags::LOGGER;
+  default:
+    throw std::runtime_error("Logger::getTypeString: Unknown MsgType.");
   }
 }
 
@@ -318,5 +321,7 @@ const char *Logger::getColorString(MsgType msgType)
     return LoggerTags::RED;
   case MsgType::LOGGER:
     return LoggerTags::CYAN;
+  default:
+    throw std::runtime_error("Logger::getColorString: Unknown MsgType.");
   }
 }
