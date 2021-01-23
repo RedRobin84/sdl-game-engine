@@ -5,11 +5,11 @@
 
 struct SDL_Destroyers
 {
-    void operator()(SDL_Window* w) const { SDL_DestroyWindow(w); }
-    void operator()(SDL_Renderer* r) const { SDL_DestroyRenderer(r); }
+  void operator()(SDL_Window *w) const { SDL_DestroyWindow(w); }
+  void operator()(SDL_Renderer *r) const { SDL_DestroyRenderer(r); }
 };
 
 struct TTF_Destroyers
 {
-    void operator()(TTF_Font * f) const { TTF_CloseFont(f); }
+  void operator()(TTF_Font *f) const { TTF_CloseFont(f); }
 };

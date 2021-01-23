@@ -5,7 +5,7 @@
 
 #include <iostream>
 
-int main(int argc, char *args[])
+int main(int argc, char *argv[])
 {
     Logger::init(Logger::WRITE_TO_FILE | Logger::BUFFERED_LOGGING | Logger::DEBUG_MODE);
     try

@@ -1,6 +1,6 @@
 # MY_FIRST_ENGINE
 
-Sandbox project for practicing both legacy and modern C++ features.
+Sandbox project for practicing both legacy and modern C++ features. Although application is fully operational, it's not meant to be put on production.
 
 ### CONTENTS:
 
@@ -34,6 +34,8 @@ Sandbox project for practicing both legacy and modern C++ features.
 - project setup is adapted to **64-bit** environment.
 - **Visual Studio Code** as an IDE
 - **Clang** as a compiler
+- **Clang tools (clang-tidy, clang-format)** 
+- **cppcheck** static analyzer
 
 #### VS Code extensions
 - **clangd** extension - for better intellisense and Clang code checks
@@ -46,6 +48,10 @@ Sandbox project for practicing both legacy and modern C++ features.
 ### Mac
 
 ### Windows
+
+## Some inspiration from...
+
+- [cpp-starter-project](https://github.com/lefticus/cpp_starter_project) by lefticus(Jason Turner) et.al
 
 For compiling on Clang under Windows I used MinGW-w64. Thats Clang 11.0.0 on GCC 10.2.0.
 - A zip file for Win64 can be found on [WinLibs](http://winlibs.com/) website. Download and extract to **C:/mingw64** or elsewhere

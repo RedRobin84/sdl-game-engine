@@ -3,7 +3,11 @@ project(lazyfoo_cmaketools VERSION 0.1.0)
 
 #flags
 
+set(CMAKE_C_STANDARD 11)
+set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
 if(CMAKE_HOST_SYSTEM_NAME MATCHES "Linux")
 add_compile_definitions(LINUX)
@@ -21,6 +25,13 @@ add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 file(GLOB SOURCES "src/*.cpp")
 
 add_executable(lazyfoo_cmaketools ${SOURCES})
+
+option(ENABLE_COMPILER_WARNINGS OFF)
+if(ENABLE_COMPILER_WARNINGS)
+  target_compile_options(lazyfoo_cmaketools PRIVATE -Wall -Wextra -pedantic -Werror -Wno-vla-extension)
+endif()
+
+include(cmake/StaticAnalyzers.cmake)
 
 #SDL packages
 
@@ -63,12 +74,8 @@ INCLUDE_DIRECTORIES(${SDL2_INCLUDE_DIR} ${SDL2TTF_INCLUDE_DIR} ${SDL2_IMAGE_INCL
 TARGET_LINK_LIBRARIES(lazyfoo_cmaketools ${SDL2_LIBRARY} ${SDL2TTF_LIBRARY} ${SDL2_IMAGE_LIBRARY})
 
 #tests
+include(CTest)
 
 enable_testing()
 add_executable(logger_test tests/LoggerTest.cpp src/Logger.cpp)
 add_test(LoggerTest logger_test)
-
-set(CPACK_PROJECT_NAME ${PROJECT_NAME})
-set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
-include(CPack)
-include(CTest)
