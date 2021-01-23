@@ -1,33 +1,35 @@
 #include "ProgramSwitcher.h"
 #include "Menu.h"
+#include "Logger.h"
 
 #include "SDL_ttf_platform.h"
 
-ProgramSwitcher::ProgramSwitcher() :   m_factory(std::make_unique<ProgramFactory>())
+ProgramSwitcher::ProgramSwitcher() : m_factory(std::make_unique<ProgramFactory>())
 {
-	m_programStack.emplace(m_factory.get()->create(ProgramTypeEnum::MENU));
+  m_programStack.emplace(m_factory.get()->create(ProgramTypeEnum::MENU));
 }
 
 ProgramSwitcher::~ProgramSwitcher()
 {
-	//Quit SDL subsystems
-	TTF_Quit();
-	IMG_Quit();
-	SDL_Quit();
+  //Quit SDL subsystems
+  TTF_Quit();
+  IMG_Quit();
+  SDL_Quit();
 }
 
 inline bool ProgramSwitcher::programIsRunning()
 {
-	return this->m_programStack.top().get()->isRunning();
+  return this->m_programStack.top().get()->isRunning();
 }
 
 void ProgramSwitcher::switchProgram()
 {
-	if (m_programStack.top().get()->getProgramType() == ProgramTypeEnum::NO_TYPE)
-	{
-		m_programStack.pop();
-		return;
-	}
-	
-	m_programStack.emplace(m_factory.get()->create(m_programStack.top().get()->getProgramType()));
+  if (m_programStack.top()->getProgramType() == ProgramTypeEnum::NO_TYPE) {
+    Logger::debug("ProgramSwitcher::switchProgram: NO_TYPE program. Popping up.");
+    m_programStack.pop();
+    return;
+  }
+
+  m_programStack.emplace(m_factory.get()->create(m_programStack.top().get()->getProgramType()));
+  Logger::debug("ProgramSwitcher::switchProgram: Adding program. Current stack: %uz", m_programStack.size());
 }
