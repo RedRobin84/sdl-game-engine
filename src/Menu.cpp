@@ -6,7 +6,7 @@
 #include <algorithm>
 
 Menu::Menu() : Program(ProgramTypeEnum::MENU),
-               TOTAL_DATA(m_programType.getNameMap().size()),
+               TOTAL_DATA(ProgramType::getNameMap().size()),
                m_currentData(0),
                m_currentType(ProgramTypeEnum::MENU)
 
@@ -17,7 +17,6 @@ Menu::Menu() : Program(ProgramTypeEnum::MENU),
 
 void Menu::init()
 {
-
   if (initialized) {
     Logger::warn("Menu::init: Main initialization already done. Stopping main initialization.");
     return;
@@ -27,42 +26,41 @@ void Menu::init()
   if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0) {
     Logger::error("Menu::init: SDL could not initialize! SDL Error:");
     throw std::runtime_error(SDL_GetError());
-  } else {
-    //Set texture filtering to linear
-    if (!SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1")) {
-      Logger::warn("Menu::init: Linear texture filtering not enabled!");
-    }
-
-    //Create window
-    m_window.reset(SDL_CreateWindow(Programs::Menu::TITLE, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN));
-    if (m_window == nullptr) {
-      Logger::error("Menu::init: Window could not be created! SDL Error:");
-      throw std::runtime_error(SDL_GetError());
-    } else {
-      //Create vsynced renderer for window
-      m_renderer.reset(SDL_CreateRenderer(m_window.get(), -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC));
-      if (m_renderer == nullptr) {
-        Logger::error("Menu::init: Renderer could not be created! SDL Error:");
-        throw std::runtime_error(SDL_GetError());
-      } else {
-        //Initialize renderer color
-        SDL_SetRenderDrawColor(m_renderer.get(), 0xFF, 0xFF, 0xFF, 0xFF);
-
-        //Initialize PNG loading
-        int imgFlags = IMG_INIT_PNG;
-        if (!(IMG_Init(imgFlags) & imgFlags)) {
-          Logger::error("Menu::init: SDL_image could not initialize! SDL_image Error:");
-          throw std::runtime_error(IMG_GetError());
-        }
-
-        //Initialize SDL_ttf
-        if (TTF_Init() == -1) {
-          Logger::error("Menu::init: SDL_ttf could not initialize! SDL_ttf Error:");
-          throw std::runtime_error(TTF_GetError());
-        }
-      }
-    }
   }
+  //Set texture filtering to linear
+  if (SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1") == 0U) {
+    Logger::warn("Menu::init: Linear texture filtering not enabled!");
+  }
+
+  //Create window
+  m_window.reset(SDL_CreateWindow(Programs::Menu::TITLE, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN));
+  if (m_window == nullptr) {
+    Logger::error("Menu::init: Window could not be created! SDL Error:");
+    throw std::runtime_error(SDL_GetError());
+  }
+  //Create vsynced renderer for window
+  m_renderer.reset(SDL_CreateRenderer(m_window.get(), -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC));
+  if (m_renderer == nullptr) {
+    Logger::error("Menu::init: Renderer could not be created! SDL Error:");
+    throw std::runtime_error(SDL_GetError());
+  }
+  //Initialize renderer color
+  SDL_SetRenderDrawColor(m_renderer.get(), 0xFF, 0xFF, 0xFF, 0xFF);
+
+  //Initialize PNG loading
+  int imgFlags = IMG_INIT_PNG;
+  if ((IMG_Init(imgFlags) & imgFlags) == 0) {
+    Logger::error("Menu::init: SDL_image could not initialize! SDL_image Error:");
+    throw std::runtime_error(IMG_GetError());
+  }
+
+  //Initialize SDL_ttf
+  if (TTF_Init() == -1) {
+    Logger::error("Menu::init: SDL_ttf could not initialize! SDL_ttf Error:");
+    throw std::runtime_error(TTF_GetError());
+  }
+
+
   initialized = true;
 }
 
@@ -107,12 +105,12 @@ void Menu::handleEvents()
 void Menu::loadMedia()
 {
 
-  m_programNames.resize(m_programType.getNameMap().size());
+  m_programNames.resize(ProgramType::getNameMap().size());
   m_textColor = { 0, 0, 0, 0xFF };
   m_highlightColor = { 0xFF, 0, 0, 0xFF };
 
-  m_font.reset(TTF_OpenFont(LAZY_FONT_PATH, MEDIUM_FONT_SIZE));
-  if (m_font == NULL) {
+  m_font.reset(TTF_OpenFont(LAZY_FONT_PATH.data(), MEDIUM_FONT_SIZE));
+  if (m_font == nullptr) {
     Logger::error("Menu::loadMedia: Failed to load lazy font! SDL_ttf Error: %s");
     throw std::runtime_error(TTF_GetError());
   }
@@ -121,12 +119,12 @@ void Menu::loadMedia()
     throw std::runtime_error("Menu::loadMedia: Failed to render prompt text!");
   }
 
-  if (m_programNames.size() != m_programType.getNameMap().size()) {
+  if (m_programNames.size() != ProgramType::getNameMap().size()) {
     throw std::runtime_error("Menu::loadMedia: Size of both containers does not match.");
   }
 
   int index = 0;
-  std::for_each(m_programType.getNameMap().begin(), m_programType.getNameMap().end(), [this, index](const std::pair<ProgramTypeEnum, const std::string &> &mapRecord) mutable {
+  std::for_each(ProgramType::getNameMap().begin(), m_programType.getNameMap().end(), [this, index](const std::pair<ProgramTypeEnum, const std::string &> &mapRecord) mutable {
     if (!m_programNames[index].loadFromRenderedText(m_renderer.get(), mapRecord.second, m_textColor, m_font.get())) {
       throw std::runtime_error("Menu::getProgramNames: Unable to load texture from program names.");
     }

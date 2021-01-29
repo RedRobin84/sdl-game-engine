@@ -14,7 +14,7 @@ class ProgramType
 {
 
 public:
-  ProgramType(ProgramTypeEnum anEnum);
+  explicit ProgramType(ProgramTypeEnum anEnum);
   ProgramTypeEnum next();
   ProgramTypeEnum previous();
   const std::string &getName();

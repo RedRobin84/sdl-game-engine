@@ -2,8 +2,8 @@
 
 #include "Commons.h"
 
-#include <stdint.h>
-#include <stdio.h>
+#include <cstdint>
+#include <cstdio>
 #include <cstdarg>
 #include <vector>
 #include <ctime>

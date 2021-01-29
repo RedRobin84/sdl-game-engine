@@ -33,9 +33,9 @@ void Logger::init(uint8_t opts, const char *userFN, const size_t userSize, const
   if ((options & WRITE_TO_FILE) != 0) {
     writeMessage(LoggerTags::INIT_MESSAGE);
   }
-  debug(options & WRITE_TO_FILE ? LoggerTags::WRITE_TO_FILE_ON : LoggerTags::WRITE_TO_FILE_OFF);
-  debug(options & BUFFERED_LOGGING ? LoggerTags::BUFFERED_LOGGING_ON : LoggerTags::BUFFERED_LOGGING_OFF);
-  debug(options & DEBUG_MODE ? LoggerTags::DEBUG_MODE_ON : LoggerTags::DEBUG_MODE_OFF);
+  debug((options & WRITE_TO_FILE) != 0 ? LoggerTags::WRITE_TO_FILE_ON : LoggerTags::WRITE_TO_FILE_OFF);
+  debug((options & BUFFERED_LOGGING) != 0 ? LoggerTags::BUFFERED_LOGGING_ON : LoggerTags::BUFFERED_LOGGING_OFF);
+  debug((options & DEBUG_MODE) != 0 ? LoggerTags::DEBUG_MODE_ON : LoggerTags::DEBUG_MODE_OFF);
 }
 
 uint8_t Logger::setOptions(uint8_t values)
@@ -60,7 +60,7 @@ void Logger::enableBufferedLogging()
 }
 void Logger::disableBufferedLogging()
 {
-  if (!(options & BUFFERED_LOGGING)) {
+  if ((options & BUFFERED_LOGGING) == 0) {
     debug("Logger::disableBufferedLogging: Buffered logging already off.");
     return;
   }
