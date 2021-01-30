@@ -8,5 +8,6 @@ Checks: '
         -llvm-*,-llvmlibc-callee-namespace,
         -cppcoreguidelines-avoid-non-const-global-variables,
         -cppcoreguidelines-pro-bounds-array-to-pointer-decay,
-        -cppcoreguidelines-pro-type-vararg
+        -cppcoreguidelines-pro-type-vararg,
+        -hicpp-vararg
         '

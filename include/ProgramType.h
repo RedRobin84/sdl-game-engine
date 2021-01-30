@@ -25,6 +25,4 @@ public:
 private:
   ProgramTypeEnum m_programTypeEnum;
   static const ProgramNameMap m_programNames;
-
-  std::unique_ptr<Program> createInstance(ProgramTypeEnum anEnum);
 };

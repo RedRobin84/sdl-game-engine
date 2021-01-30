@@ -271,7 +271,7 @@ void Logger::write(const char *message)
 
 void Logger::finalCleanup()
 {
-  if ((options & BUFFERED_LOGGING) && !messageStack.empty()) {
+  if (((options & BUFFERED_LOGGING) != 0) && !messageStack.empty()) {
     flush();
   }
   printMessage(MsgType::LOGGER, LoggerTags::EXIT_MESSAGE);

@@ -124,7 +124,7 @@ void Menu::loadMedia()
   }
 
   int index = 0;
-  std::for_each(ProgramType::getNameMap().begin(), m_programType.getNameMap().end(), [this, index](const std::pair<ProgramTypeEnum, const std::string &> &mapRecord) mutable {
+  std::for_each(ProgramType::getNameMap().begin(), ProgramType::getNameMap().end(), [this, index](const std::pair<ProgramTypeEnum, const std::string &> &mapRecord) mutable {
     if (!m_programNames[index].loadFromRenderedText(m_renderer.get(), mapRecord.second, m_textColor, m_font.get())) {
       throw std::runtime_error("Menu::getProgramNames: Unable to load texture from program names.");
     }

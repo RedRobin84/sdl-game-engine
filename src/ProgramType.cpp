@@ -51,14 +51,3 @@ const std::string &ProgramType::getName()
 
   return programName->second;
 }
-
-std::unique_ptr<Program> ProgramType::createInstance(ProgramTypeEnum anEnum)
-{
-  switch (anEnum) {
-  case ProgramTypeEnum::MENU:
-    return std::make_unique<Menu>();
-
-  default:
-    throw std::invalid_argument("ERROR: ProgramType::createInstance: Unable to create program instance by type.");
-  }
-}
