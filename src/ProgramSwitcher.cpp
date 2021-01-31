@@ -24,12 +24,12 @@ inline bool ProgramSwitcher::programIsRunning()
 
 void ProgramSwitcher::switchProgram()
 {
-  if (m_programStack.top()->getProgramType() == ProgramTypeEnum::NO_TYPE) {
+  if (m_programStack.top()->getNextProgram() == ProgramTypeEnum::NO_TYPE) {
     Logger::debug("ProgramSwitcher::switchProgram: NO_TYPE program. Popping up.");
     m_programStack.pop();
     return;
   }
 
-  m_programStack.emplace(m_factory->create(m_programStack.top().get()->getProgramType()));
+  m_programStack.emplace(m_factory->create(m_programStack.top().get()->getNextProgram()));
   Logger::debug("ProgramSwitcher::switchProgram: Adding program. Current stack: %uz", m_programStack.size());
 }

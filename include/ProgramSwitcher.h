@@ -23,7 +23,7 @@ public:
   ProgramSwitcher &operator=(ProgramSwitcher &&) = delete;
 
   bool programIsRunning();
-  inline ProgramStack const &getProgramStack() { return m_programStack; }
+  inline const ProgramStack &getProgramStack() const { return m_programStack; }
   void switchProgram();
 
 private:

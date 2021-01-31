@@ -1,14 +1,16 @@
 #pragma once
 
-#include <string>
+#include <string_view>
+
+using namespace ::std::literals::string_view_literals;
 
 namespace ProgramNames {
-inline static const std::string MENU = "MENU";
-inline static const std::string AUDIO = "AUDIO";
+inline constexpr auto MENU = "MENU"sv;
+inline constexpr auto AUDIO = "AUDIO"sv;
 }// namespace ProgramNames
 
 namespace Programs::Menu {
-inline static const std::string SELECT_PROGRAM = "Select a program:";
+inline constexpr auto SELECT_PROGRAM = "Select a program:"sv;
 inline constexpr char TITLE[] = "SDL Tutorial";
 }// namespace Programs::Menu
 
