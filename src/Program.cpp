@@ -11,7 +11,7 @@ Program::Program(ProgramTypeEnum anEnum) : m_programType(anEnum), initialized(fa
 void Program::exit(ProgramTypeEnum next = ProgramTypeEnum::NO_TYPE)
 {
   quit = true;
-  this->m_programType = next;
+  this->m_programType.set(next);
 }
 
 void Program::renderInit()

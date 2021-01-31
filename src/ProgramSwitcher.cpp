@@ -6,7 +6,7 @@
 
 ProgramSwitcher::ProgramSwitcher() : m_factory(std::make_unique<ProgramFactory>())
 {
-  m_programStack.emplace(m_factory.get()->create(ProgramTypeEnum::MENU));
+  m_programStack.emplace(m_factory->create(ProgramTypeEnum::MENU));
 }
 
 ProgramSwitcher::~ProgramSwitcher()
@@ -30,6 +30,6 @@ void ProgramSwitcher::switchProgram()
     return;
   }
 
-  m_programStack.emplace(m_factory.get()->create(m_programStack.top().get()->getProgramType()));
+  m_programStack.emplace(m_factory->create(m_programStack.top().get()->getProgramType()));
   Logger::debug("ProgramSwitcher::switchProgram: Adding program. Current stack: %uz", m_programStack.size());
 }

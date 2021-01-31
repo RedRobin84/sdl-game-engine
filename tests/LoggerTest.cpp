@@ -23,8 +23,9 @@ public:
   inline static void initTest()
   {
     Logger::init(Logger::WRITE_TO_FILE, TEST_FILE_NAME.c_str());
-    if (testFile.peek() == std::ifstream::traits_type::eof())
+    if (testFile.peek() == std::ifstream::traits_type::eof()) {
       return;
+    }
     printf("initTest: File is not empty\n");
     state = State::FAILURE;
   }
@@ -43,8 +44,9 @@ public:
     time_t oldTime = Logger::currentTime;
     std::this_thread::sleep_for(1000ms);
     Logger::resetTime();
-    if (Logger::currentTime > oldTime)
+    if (Logger::currentTime > oldTime) {
       return;
+    }
 
     printf("resetTimeTest: Time before reset (%f) is not older than new time(%f).\n", (double)Logger::currentTime, (double)oldTime);
     state = State::FAILURE;
@@ -61,8 +63,9 @@ public:
     getline(testFile, testString);
     testFile.close();
     remove(Logger::userFileName);
-    if (testString.compare(requiredString) == 0)
+    if (testString == requiredString) {
       return;
+    }
 
     state = State::FAILURE;
     printf("LoggeTest::info: Messages doesn't match: %s\nVS. %s ", testString.data(), requiredString.data());

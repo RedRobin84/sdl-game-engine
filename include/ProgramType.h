@@ -14,7 +14,7 @@ class ProgramType
 {
 
 public:
-  ProgramType(ProgramTypeEnum anEnum);
+  explicit ProgramType(ProgramTypeEnum anEnum);
   ProgramTypeEnum next();
   ProgramTypeEnum previous();
   const std::string &getName();
@@ -25,6 +25,4 @@ public:
 private:
   ProgramTypeEnum m_programTypeEnum;
   static const ProgramNameMap m_programNames;
-
-  std::unique_ptr<Program> createInstance(ProgramTypeEnum anEnum);
 };

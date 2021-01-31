@@ -14,8 +14,14 @@ class ProgramSwitcher
 {
 public:
   using ProgramStack = std::stack<std::unique_ptr<Program>>;
+
   ProgramSwitcher();
   ~ProgramSwitcher();
+  ProgramSwitcher(const ProgramSwitcher &) = delete;
+  ProgramSwitcher(ProgramSwitcher &&) = delete;
+  ProgramSwitcher &operator=(ProgramSwitcher) = delete;
+  ProgramSwitcher &operator=(ProgramSwitcher &&) = delete;
+
   bool programIsRunning();
   inline ProgramStack const &getProgramStack() { return m_programStack; }
   void switchProgram();

@@ -10,9 +10,11 @@ class Program
 public:
   Program(const Program &program) = delete;
   Program &operator=(const Program &program) = delete;
+  Program &operator=(Program&&) = delete;
+  Program(Program&&) = delete;
   virtual ~Program() = default;
 
-  inline bool isRunning() { return !quit; }
+  [[nodiscard]] inline bool isRunning() const { return !quit; }
   inline ProgramTypeEnum getProgramType() { return this->m_programType.get(); }
   virtual void init() = 0;
   void run();
@@ -23,7 +25,7 @@ protected:
   constexpr static int SCREEN_WIDTH = 640;
   constexpr static int SCREEN_HEIGHT = 480;
 
-  Program(ProgramTypeEnum anEnum);
+  explicit Program(ProgramTypeEnum anEnum);
   virtual void loadMedia() = 0;
   virtual void renderInit();
   virtual void renderPresent();
