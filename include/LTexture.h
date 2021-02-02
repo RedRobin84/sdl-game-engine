@@ -1,6 +1,6 @@
 #pragma once
 
-#include <string>
+#include <string_view>
 #include "SDL_platform.h"
 #include "SDL_image_platform.h"
 #include "SDL_stdinc.h"
@@ -19,8 +19,8 @@ public:
   constexpr static Uint8 FULL_INTENSITY = 0xFF;
   constexpr static Uint8 ZERO_INTENSITY = 0x00;
 
-  bool loadFromFile(const std::string &path, SDL_Renderer *renderer);
-  bool loadFromRenderedText(SDL_Renderer *renderer, const std::string &textureText, SDL_Color textColor, TTF_Font *font);
+  bool loadFromFile(std::string_view path, SDL_Renderer *renderer);
+  bool loadFromRenderedText(SDL_Renderer *renderer, std::string_view textureText, SDL_Color textColor, TTF_Font *font);
   void free();
   void setColor(Uint8 red, Uint8 green, Uint8 blue);
   void setBlendMode(SDL_BlendMode blending);

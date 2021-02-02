@@ -15,20 +15,20 @@ LTexture::LTexture()
   free();
 }
 
-bool LTexture::loadFromFile(const std::string &path, SDL_Renderer *renderer)
+bool LTexture::loadFromFile(const std::string_view path, SDL_Renderer *renderer)
 {
   free();
 
   SDL_Texture *newTexture = nullptr;
 
-  SDL_Surface *loadedSurface = IMG_Load(path.c_str());
+  SDL_Surface *loadedSurface = IMG_Load(path.data());
   if (loadedSurface == nullptr) {
-    Logger::error("Unable to load image %s! SDL_Image Error: %s!", path.c_str(), IMG_GetError());
+    Logger::error("Unable to load image %s! SDL_Image Error: %s!", path.data(), IMG_GetError());
   } else {
     SDL_SetColorKey(loadedSurface, SDL_TRUE, SDL_MapRGB(loadedSurface->format, 0, FULL_INTENSITY, FULL_INTENSITY));
     newTexture = SDL_CreateTextureFromSurface(renderer, loadedSurface);
     if (newTexture == nullptr) {
-      Logger::error("Unable to create texture from %s! SDL_Error: %s\n", path.c_str(), SDL_GetError());
+      Logger::error("Unable to create texture from %s! SDL_Error: %s\n", path.data(), SDL_GetError());
     } else {
       mWidth = loadedSurface->w;
       mHeight = loadedSurface->h;
@@ -40,13 +40,13 @@ bool LTexture::loadFromFile(const std::string &path, SDL_Renderer *renderer)
   return mTexture != nullptr;
 }
 
-bool LTexture::loadFromRenderedText(SDL_Renderer *renderer, const std::string &textureText, SDL_Color textColor, TTF_Font *font)
+bool LTexture::loadFromRenderedText(SDL_Renderer *renderer, std::string_view textureText, SDL_Color textColor, TTF_Font *font)
 {
   //Get rid of preexisting texture
   free();
 
   //Render text surface
-  SDL_Surface *textSurface = TTF_RenderText_Solid(font, textureText.c_str(), textColor);
+  SDL_Surface *textSurface = TTF_RenderText_Solid(font, textureText.data(), textColor);
   if (textSurface != nullptr) {
     //Create texture from surface pixels
     mTexture = SDL_CreateTextureFromSurface(renderer, textSurface);

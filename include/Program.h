@@ -15,12 +15,14 @@ public:
   virtual ~Program() = default;
 
   [[nodiscard]] inline bool isRunning() const { return !quit; }
-  inline ProgramTypeEnum getProgramType() { return this->m_programType.get(); }
+  inline constexpr ProgramTypeEnum getProgramType() { return this->m_programType.get(); }
+  inline constexpr ProgramTypeEnum getNextProgram() { return this->m_nextProgram; }
   virtual void init() = 0;
   void run();
 
 protected:
-  ProgramType m_programType;
+  const ProgramType m_programType;
+  ProgramTypeEnum m_nextProgram = ProgramTypeEnum::NO_TYPE;
 
   constexpr static int SCREEN_WIDTH = 640;
   constexpr static int SCREEN_HEIGHT = 480;

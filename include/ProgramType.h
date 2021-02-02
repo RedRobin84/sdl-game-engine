@@ -2,25 +2,25 @@
 
 #include "ProgramTypeEnum.h"
 
-#include <string>
+#include <string_view>
 #include <map>
 #include <memory>
 
 class Program;
 
-using ProgramNameMap = std::map<ProgramTypeEnum, const std::string &>;
+using ProgramNameMap = std::map<ProgramTypeEnum, std::string_view>;
 
 class ProgramType
 {
 
 public:
   explicit ProgramType(ProgramTypeEnum anEnum);
-  ProgramTypeEnum next();
-  ProgramTypeEnum previous();
-  const std::string &getName();
+  ProgramTypeEnum next() const;
+  ProgramTypeEnum previous() const;
+  const std::string_view getName();
   inline static const ProgramNameMap &getNameMap() { return m_programNames; }
-  inline constexpr ProgramTypeEnum get() { return this->m_programTypeEnum; }
-  inline constexpr void set(ProgramTypeEnum anEnum) { this->m_programTypeEnum = anEnum; }
+  inline ProgramTypeEnum get() const { return this->m_programTypeEnum; }
+  inline void set(ProgramTypeEnum anEnum) { this->m_programTypeEnum = anEnum; }
 
 private:
   ProgramTypeEnum m_programTypeEnum;

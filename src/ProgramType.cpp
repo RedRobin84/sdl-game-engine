@@ -12,7 +12,7 @@ ProgramType::ProgramType(ProgramTypeEnum anEnum) : m_programTypeEnum(anEnum)
 {
 }
 
-ProgramTypeEnum ProgramType::next()
+ProgramTypeEnum ProgramType::next() const
 {
   switch (m_programTypeEnum) {
   case ProgramTypeEnum::MENU:
@@ -27,7 +27,7 @@ ProgramTypeEnum ProgramType::next()
   }
 }
 
-ProgramTypeEnum ProgramType::previous()
+ProgramTypeEnum ProgramType::previous() const
 {
   switch (m_programTypeEnum) {
   case ProgramTypeEnum::MENU:
@@ -42,7 +42,7 @@ ProgramTypeEnum ProgramType::previous()
   }
 }
 
-const std::string &ProgramType::getName()
+const std::string_view ProgramType::getName()
 {
   auto programName = m_programNames.find(m_programTypeEnum);
   if (programName == m_programNames.end()) {
