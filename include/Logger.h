@@ -19,17 +19,6 @@ public:
     DEBUG_MODE = 0x04,
   };
 
-  enum class MsgType { LOGGER,
-    INFO,
-    WARN,
-    ERROR,
-    DEBUG };
-
-  constexpr static size_t DEFAULT_STACK_SIZE = 10;
-  constexpr static size_t FLUSH_LOG_RESERVE = 2;
-  constexpr static size_t DEFAULT_BUFFER_SIZE = 512;
-  constexpr static char DEFAULT_FILE_NAME[] = "log.txt";
-
   static void init(uint8_t opts = LOGGER_DEFAULT,
     const char *userFN = DEFAULT_FILE_NAME,
     size_t userSize = DEFAULT_STACK_SIZE,
@@ -46,6 +35,13 @@ public:
   static void finalCleanup();
 
 private:
+  constexpr static size_t DEFAULT_STACK_SIZE = 10;
+  constexpr static size_t FLUSH_LOG_RESERVE = 2;
+  constexpr static size_t DEFAULT_BUFFER_SIZE = 512;
+  constexpr static char DEFAULT_FILE_NAME[] = "log.txt";
+
+  enum class MsgType;
+
   static std::vector<std::unique_ptr<char[]>> messageStack;
   static const char *userFileName;
   static time_t currentTime;
