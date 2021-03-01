@@ -3,14 +3,7 @@
 #include "LTexture.h"
 #include "Commons.h"
 
-LTexture::LTexture()
-{
-  mTexture = nullptr;
-  mWidth = 0;
-  mHeight = 0;
-}
-
-  LTexture::~LTexture()
+LTexture::~LTexture()
 {
   free();
 }

@@ -12,7 +12,6 @@ ProgramSwitcher::ProgramSwitcher() : m_factory(std::make_unique<ProgramFactory>(
 ProgramSwitcher::~ProgramSwitcher()
 {
   //Quit SDL subsystems
-  TTF_Quit();
   IMG_Quit();
   SDL_Quit();
 }
@@ -30,6 +29,7 @@ void ProgramSwitcher::switchProgram()
     return;
   }
 
+
   m_programStack.emplace(m_factory->create(m_programStack.top().get()->getNextProgram()));
-  Logger::debug("ProgramSwitcher::switchProgram: Adding program. Current stack: %uz", m_programStack.size());
+  Logger::debug("ProgramSwitcher::switchProgram: Adding program. Current stack: %u", m_programStack.size());
 }
