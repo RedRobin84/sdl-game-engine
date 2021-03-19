@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ProgramTypeEnum.h"
+#include "enum/ProgramTypeEnum.h"
 #include "Menu.h"
 
 #include <memory>

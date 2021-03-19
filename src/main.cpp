@@ -1,4 +1,4 @@
-#include "ProgramSwitcher.h"
+#include "ProgramManager.h"
 #include "Logger.h"
 
 #include "SDL_platform.h"
@@ -10,11 +10,10 @@ int main(int argc, char *argv[])
     Logger::init(Logger::WRITE_TO_FILE | Logger::BUFFERED_LOGGING | Logger::DEBUG_MODE);
     try
     {
-        ProgramSwitcher ps;
-        while (!ps.getProgramStack().empty())
+        ProgramManager pm;
+        while (!pm.getProgramStack().empty())
         {
-            ps.getProgramStack().top().get()->run();
-            ps.switchProgram();
+            pm.manageCurrentProgram();
         }
         
     }

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ProgramTypeEnum.h"
+#include "enum/ProgramTypeEnum.h"
 
 #include <string_view>
 #include <map>

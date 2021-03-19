@@ -1,6 +1,7 @@
 #include "Program.h"
 #include "Logger.h"
 #include "SDL_Helpers.h"
+#include "enum/ProgramTypeEnum.h"
 
 // Static variables init
 std::unique_ptr<SDL_Renderer, SDL_Destroyers> Program::d_renderer = std::unique_ptr<SDL_Renderer, SDL_Destroyers>();
@@ -10,6 +11,8 @@ SDL_Color Program::d_textColor;
 SDL_Color Program::d_highlightColor;
 SDL_Event Program::event;
 bool Program::initialized = false;
+bool Program::isRunning = false;
+ProgramTypeEnum Program::m_nextProgram = ProgramTypeEnum::NO_TYPE;
 
 //Constants
 namespace {
@@ -19,7 +22,7 @@ static constexpr char LAZY_FONT_PATH[] = "../assets/fonts/lazy.ttf";
 constexpr static int MEDIUM_FONT_SIZE = 28;
 }// namespace
 
-Program::Program(ProgramTypeEnum anEnum) : m_programType(anEnum), quit(false)
+Program::Program(ProgramTypeEnum anEnum) : m_programType(anEnum)
 {
   if (!initialized) {
     Logger::info("Program::ctr: Performing one-time initialization...");
@@ -78,10 +81,10 @@ void Program::init()
   d_highlightColor = { 0xFF, 0, 0, 0xFF };
 }
 
-void Program::exit(ProgramTypeEnum next = ProgramTypeEnum::NO_TYPE)
+void Program::stop(ProgramTypeEnum nextType = ProgramTypeEnum::NO_TYPE)
 {
-  quit = true;
-  m_nextProgram = next;
+  isRunning = false;
+  m_nextProgram = nextType;
 }
 
 void Program::renderInit()
@@ -97,16 +100,17 @@ void Program::renderPresent()
   SDL_RenderPresent(d_renderer.get());
 }
 
-void Program::run()
+ProgramTypeEnum Program::run()
 {
+  isRunning = true;
   //While application is running
-  while (!quit) {
+  while (isRunning) {
 
     //Handle events on queue
     while (SDL_PollEvent(&event) != 0) {
       //User requests quit
       if (event.type == SDL_QUIT) {
-        quit = true;
+        return ProgramTypeEnum::TERMINUS;
       } else {
         handleEvents();
       }
@@ -115,5 +119,5 @@ void Program::run()
     renderMain();
     renderPresent();
   }
-  quit = false;
+  return m_nextProgram;
 }
