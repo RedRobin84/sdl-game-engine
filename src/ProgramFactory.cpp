@@ -1,7 +1,6 @@
 #include "ProgramFactory.h"
 #include "Menu.h"
 #include "Audio.h"
-#include "ProgramTypeEnum.h"
 
 #include <memory>
 #include <stdexcept>

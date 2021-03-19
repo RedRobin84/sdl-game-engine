@@ -14,7 +14,7 @@ Menu::Menu() : Program(ProgramTypeEnum::MENU),
 
 {
   if (loadMedia() == State::FAILURE) {
-    quit = true;
+    throw std::runtime_error("Audio::init: Some exceptions occured during program initialization.");
   }
 }
 
@@ -47,10 +47,10 @@ void Menu::handleEvents()
       if (m_currentType.get() == m_programType.get()) {
         break;
       }
-      Program::exit(m_currentType.get());
+      Program::stop(m_currentType.get());
       break;
     case SDLK_ESCAPE:
-      Program::exit(ProgramTypeEnum::NO_TYPE);
+      Program::stop(ProgramTypeEnum::NO_TYPE);
       break;
     }
   }

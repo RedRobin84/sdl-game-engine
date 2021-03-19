@@ -1,7 +1,5 @@
 #pragma once
 
-#include "Commons.h"
-
 #include <cstdint>
 #include <cstdio>
 #include <cstdarg>
@@ -41,6 +39,7 @@ private:
   constexpr static char DEFAULT_FILE_NAME[] = "log.txt";
 
   enum class MsgType;
+  enum class State;
 
   static std::vector<std::unique_ptr<char[]>> messageStack;
   static const char *userFileName;

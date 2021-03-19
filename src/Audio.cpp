@@ -1,6 +1,7 @@
 #include "Audio.h"
 #include "Logger.h"
 
+#include <stdexcept>
 #include <string_view>
 #include <sstream>
 
@@ -20,7 +21,7 @@ Uint8 *Audio::gRecordingBuffer = nullptr;
 Audio::Audio() : Program(ProgramTypeEnum::AUDIO)
 {
   if (loadMedia() == State::FAILURE) {
-    quit = true;
+    throw std::runtime_error("Audio::init: Some exceptions occured during program initialization.");
   }
 }
 
@@ -70,7 +71,7 @@ void Audio::handleEvents()
 {
   if (event.type == SDL_KEYDOWN) {
       if (event.key.keysym.sym == SDLK_ESCAPE) {
-      Program::exit(ProgramTypeEnum::NO_TYPE);
+      Program::stop(ProgramTypeEnum::NO_TYPE);
       }
   }
   //Do current state event handling

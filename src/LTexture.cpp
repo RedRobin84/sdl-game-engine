@@ -1,7 +1,7 @@
 #include "Logger.h"
 
 #include "LTexture.h"
-#include "Commons.h"
+#include "enum/State.h"
 
 LTexture::~LTexture()
 {

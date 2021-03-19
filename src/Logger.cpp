@@ -16,11 +16,19 @@ uint8_t Logger::options = Logger::LOGGER_DEFAULT;
 size_t Logger::userStackSize = DEFAULT_STACK_SIZE;
 uint16_t Logger::userBufferSize = DEFAULT_BUFFER_SIZE;
 
-enum class Logger::MsgType { LOGGER,
+enum class Logger::MsgType 
+{ LOGGER,
   INFO,
   WARN,
   ERROR,
-  DEBUG };
+  DEBUG 
+  };
+
+enum class Logger::State
+{
+    FAILURE,
+    SUCCESS
+};
 
 void Logger::init(uint8_t opts, const char *userFN, const size_t userSize, const uint16_t userBuffSize)
 {
@@ -141,7 +149,7 @@ void Logger::handleMessage(MsgType msgType, const char *message, va_list args)
   }
 }
 
-State Logger::printMessage(MsgType msgType, const char *message)
+Logger::State Logger::printMessage(MsgType msgType, const char *message)
 {
   std::unique_ptr<const char[]> msg = createMessageForPrint(msgType, message);
 

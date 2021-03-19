@@ -2,7 +2,8 @@
 
 #include "ProgramType.h"
 #include "SDL_Helpers.h"
-#include "Commons.h"
+#include "enum/ProgramTypeEnum.h"
+#include "enum/State.h"
 
 #include "SDL_image_platform.h"
 
@@ -15,14 +16,13 @@ public:
   Program(Program &&) = delete;
   virtual ~Program() = default;
 
-  [[nodiscard]] inline bool isRunning() const { return !quit; }
   ProgramTypeEnum getProgramType() { return this->m_programType.get(); }
   ProgramTypeEnum getNextProgram() { return this->m_nextProgram; }
-  void run();
+  ProgramTypeEnum run();
 
 protected:
   const ProgramType m_programType;
-  ProgramTypeEnum m_nextProgram = ProgramTypeEnum::NO_TYPE;
+  static ProgramTypeEnum m_nextProgram;
 
   constexpr static int SCREEN_WIDTH = 640;
   constexpr static int SCREEN_HEIGHT = 480;
@@ -33,7 +33,7 @@ protected:
   virtual void renderPresent();
   virtual void renderMain() = 0;
   virtual void handleEvents() = 0;
-  virtual void exit(ProgramTypeEnum next);
+  void stop(ProgramTypeEnum nextProgram);
 
   static std::unique_ptr<SDL_Renderer, SDL_Destroyers> d_renderer;
   static std::unique_ptr<SDL_Window, SDL_Destroyers> d_window;
@@ -43,7 +43,7 @@ protected:
   static SDL_Color d_highlightColor;
 
   static SDL_Event event;
-  bool quit;
+  static bool isRunning;
 
 private:
   static void init();

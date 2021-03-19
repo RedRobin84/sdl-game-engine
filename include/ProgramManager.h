@@ -10,21 +10,20 @@
 
 class Program;
 
-class ProgramSwitcher
+class ProgramManager
 {
 public:
   using ProgramStack = std::stack<std::unique_ptr<Program>>;
 
-  ProgramSwitcher();
-  ~ProgramSwitcher();
-  ProgramSwitcher(const ProgramSwitcher &) = delete;
-  ProgramSwitcher(ProgramSwitcher &&) = delete;
-  ProgramSwitcher &operator=(ProgramSwitcher) = delete;
-  ProgramSwitcher &operator=(ProgramSwitcher &&) = delete;
+  ProgramManager();
+  ~ProgramManager();
+  ProgramManager(const ProgramManager &) = delete;
+  ProgramManager(ProgramManager &&) = delete;
+  ProgramManager &operator=(ProgramManager) = delete;
+  ProgramManager &operator=(ProgramManager &&) = delete;
 
-  bool programIsRunning();
   inline const ProgramStack &getProgramStack() const { return m_programStack; }
-  void switchProgram();
+  void manageCurrentProgram();
 
 private:
   ProgramStack m_programStack;

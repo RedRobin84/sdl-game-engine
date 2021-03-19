@@ -1,4 +1,5 @@
 #include "ProgramType.h"
+#include "enum/ProgramTypeEnum.h"
 #include "Strings.h"
 #include "Menu.h"
 #include "Logger.h"
