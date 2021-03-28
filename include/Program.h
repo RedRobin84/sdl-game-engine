@@ -7,6 +7,8 @@
 
 #include "SDL_image_platform.h"
 
+class Registry;
+
 class Program
 {
 public:
@@ -14,7 +16,7 @@ public:
   Program &operator=(const Program &program) = delete;
   Program &operator=(Program &&) = delete;
   Program(Program &&) = delete;
-  virtual ~Program() = default;
+  virtual ~Program();
 
   ProgramTypeEnum getProgramType() { return this->m_programType.get(); }
   ProgramTypeEnum getNextProgram() { return this->m_nextProgram; }
@@ -38,6 +40,8 @@ protected:
   static std::unique_ptr<SDL_Renderer, SDL_Destroyers> d_renderer;
   static std::unique_ptr<SDL_Window, SDL_Destroyers> d_window;
   static std::unique_ptr<TTF_Font, TTF_Destroyers> d_font;
+  
+  static Registry registry;
 
   static SDL_Color d_textColor;
   static SDL_Color d_highlightColor;

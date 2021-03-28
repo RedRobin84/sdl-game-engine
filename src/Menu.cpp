@@ -73,7 +73,7 @@ State Menu::loadMedia()
 
   int index = 0;
     State state = State::SUCCESS;
-  std::for_each(ProgramType::getNameMap().begin(), ProgramType::getNameMap().end(), [this, index, state](const std::pair<ProgramTypeEnum, std::string_view> &mapRecord) mutable {
+  std::for_each(ProgramType::getNameMap().begin(), ProgramType::getNameMap().end(), [this, index, state](const auto &mapRecord) mutable {
     if (!m_programNames[index].loadFromRenderedText(d_renderer.get(), mapRecord.second, d_textColor, d_font.get())) {
       Logger::error("Menu::getProgramNames: Unable to load texture %s from program names.", mapRecord.second);
       state = State::FAILURE;

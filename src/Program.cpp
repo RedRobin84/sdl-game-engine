@@ -2,6 +2,8 @@
 #include "Logger.h"
 #include "SDL_Helpers.h"
 #include "enum/ProgramTypeEnum.h"
+#include "Registry.h"
+#include <stdexcept>
 
 // Static variables init
 std::unique_ptr<SDL_Renderer, SDL_Destroyers> Program::d_renderer = std::unique_ptr<SDL_Renderer, SDL_Destroyers>();
@@ -13,6 +15,7 @@ SDL_Event Program::event;
 bool Program::initialized = false;
 bool Program::isRunning = false;
 ProgramTypeEnum Program::m_nextProgram = ProgramTypeEnum::NO_TYPE;
+Registry Program::registry;
 
 //Constants
 namespace {
@@ -29,6 +32,11 @@ Program::Program(ProgramTypeEnum anEnum) : m_programType(anEnum)
     init();
     initialized = true;
   }
+}
+
+Program::~Program() 
+{
+  registry.removeOrphans();
 }
 
 void Program::init()
