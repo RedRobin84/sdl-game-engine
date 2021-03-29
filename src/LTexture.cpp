@@ -13,7 +13,6 @@ bool LTexture::loadFromFile(const std::string_view path, SDL_Renderer *renderer)
   free();
 
   SDL_Texture *newTexture = nullptr;
-
   SDL_Surface *loadedSurface = IMG_Load(path.data());
   if (loadedSurface == nullptr) {
     Logger::error("Unable to load image %s! SDL_Image Error: %s!", path.data(), IMG_GetError());

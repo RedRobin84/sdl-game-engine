@@ -16,10 +16,10 @@ ProgramTypeEnum Program::m_nextProgram = ProgramTypeEnum::NO_TYPE;
 
 //Constants
 namespace {
-static constexpr char PROGRAM_NAME[] = "LazyFoo CMake Tools";
-static constexpr char LAZY_FONT_PATH[] = "../assets/fonts/lazy.ttf";
+constexpr char PROGRAM_NAME[] = "LazyFoo CMake Tools";
+constexpr char LAZY_FONT_PATH[] = "../assets/fonts/lazy.ttf";
 
-constexpr static int MEDIUM_FONT_SIZE = 28;
+constexpr int MEDIUM_FONT_SIZE = 28;
 }// namespace
 
 Program::Program(ProgramTypeEnum anEnum) : m_programType(anEnum)
