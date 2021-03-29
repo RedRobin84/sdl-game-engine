@@ -3,6 +3,7 @@
 #include "Strings.h"
 #include "Menu.h"
 #include "Logger.h"
+#include <stdexcept>
 
 const ProgramNameMap ProgramType::m_programNames = {
   { ProgramTypeEnum::MENU, ProgramNames::MENU },
