@@ -15,7 +15,8 @@ class ProgramManager
 public:
   using ProgramStack = std::stack<std::unique_ptr<Program>>;
 
-  ProgramManager();
+  ProgramManager() = delete;
+  ProgramManager(ProgramTypeEnum startingProgramType);
   ~ProgramManager();
   ProgramManager(const ProgramManager &) = delete;
   ProgramManager(ProgramManager &&) = delete;

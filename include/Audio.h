@@ -11,7 +11,6 @@ class Audio : public Program
 public:
   Audio();
   ~Audio();
-  void handleEvents() override;
 
 private:
   static constexpr int MAX_RECORDING_DEVICES = 10;
@@ -57,5 +56,7 @@ private:
   [[nodiscard]] State loadMedia() override;
   static void audioRecordingCallback(void *userdata, unsigned char *stream, int len);
   static void audioPlaybackCallback(void *userdata, Uint8 *stream, int len);
-  void renderMain() override;
+  void handleEvents() override;
+  void update() override;
+  void render() override;
 };

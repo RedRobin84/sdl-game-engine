@@ -2,9 +2,16 @@
 
 Sandbox project for practicing both legacy and modern C++ features. Although application is fully operational, it's not meant to be put on production.
 
-### CONTENTS:
+## CONTENTS:
 
-#### Legacy C and C++:
+### Engine parts:
+
+#### Dynamic asset pool
+TODO: desc
+
+### Language features:
+
+#### Legacy C and C++: (TODO: Add Filenames and line numbers)
 
 - enum flags and bitwise operators
 - c string usage, manipulation, char buffers
@@ -12,7 +19,9 @@ Sandbox project for practicing both legacy and modern C++ features. Although app
 
 #### Design Patterns:
 
-- Monostate(Logger)
+- **Monostate** - Logger
+- **Singleton** - Renderer - Although I'd rather pass renderer by reference (using pointers) I wanted to try famous (infamous) Singleton to get knowledge about it's advantages and disadvantages in practice.
+- **Factory** - AssetFactory and ProgramFactory for creating class instances
 
 #### C++11:
 
@@ -27,7 +36,7 @@ Sandbox project for practicing both legacy and modern C++ features. Although app
 
 ### LIBRARIES (Sub-projects):
 
-- Logger
+- Logger (TODO: needs more info and description)
 
 ## Environment setup
 
@@ -69,3 +78,8 @@ Engine:
 
 Tests:
     - more tests for Logger
+
+    Separate ProgramTypeEnum states (TERMINUS) to new Enum to new ProgramState enum with ADD, REPLACE, RESET, TERMINUS states.
+ADD -> default (add program to stack)
+REPLACE -> replace current ending program with desired one
+RESET -> clear Registry and then Program stack

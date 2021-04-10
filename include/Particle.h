@@ -1,39 +1,32 @@
 #pragma once
 
-#include <array>
+#include "enum/State.h"
 
-enum class State;
+#include <memory>
+
 class SDL_Renderer;
 class LTexture;
 
 class Particle
 {
 public:
-  static constexpr int NUMBER_OF_TEXTURES = 3;
-
   //Initialize position and animation
-  Particle(int x, int y);
+  Particle(int x, int y, const LTexture *texture, const LTexture *shimmerTexture);
 
   //Shows the particle
   void render();
-
-  //Initialize static variables
-  static State init(SDL_Renderer *renderer);
 
   //Checks if particle is dead
   bool isDead();
 
 private:
   //Offsets
-  int mPosX, mPosY;
+  int m_PosX, m_PosY;
 
   //Current frame of animation
-  int mFrame;
+  int m_Frame;
 
   //Type of particle
-  LTexture *mTexture;
-
-static bool initialized;
-  static std::array<LTexture, NUMBER_OF_TEXTURES> particle_textures;
-  static LTexture shimmerTexture;
+  const LTexture *m_Texture;
+  const LTexture *m_ShimmeringTexture;
 };

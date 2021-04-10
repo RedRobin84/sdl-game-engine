@@ -1,7 +1,14 @@
 #pragma once
 
 #include "SDL_platform.h"
-#include "Particle.h"
+#include "enum/State.h"
+
+#include <memory>
+#include <vector>
+
+class Registry;
+class Particle;
+class LTexture;
 
 class Dot
 {
@@ -15,7 +22,7 @@ public:
   static constexpr int DOT_VEL = 10;
 
   //Initializes the variables and allocates particles
-  Dot();
+  Dot(Registry &registry);
 
   //Deallocates particles
   ~Dot();
@@ -24,28 +31,27 @@ public:
   void handleEvent(SDL_Event &e);
 
   //Moves the dot
-  void move();
+  void update();
 
   //Shows the dot on the screen
   void render();
 
-  static State init(SDL_Renderer *renderer);
-
 private:
   //The particles
-  Particle *particles[TOTAL_PARTICLES];
+  Particle *m_particles[TOTAL_PARTICLES];
+
+  std::vector<std::shared_ptr<LTexture>> m_particleTextures;
+  std::shared_ptr<LTexture> m_ShimmeringTexture;
 
   //Texture
-  static LTexture m_texture;
-
-  static bool initialized;
+  std::shared_ptr<LTexture> m_texture;
 
   //Shows the particles
   void renderParticles();
 
   //The X and Y offsets of the dot
-  int mPosX, mPosY;
+  int m_PosX, m_PosY;
 
   //The velocity of the dot
-  int mVelX, mVelY;
+  int m_VelX, m_VelY;
 };

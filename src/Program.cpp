@@ -1,27 +1,23 @@
 #include "Program.h"
 #include "Logger.h"
 #include "SDL_Helpers.h"
-#include "enum/ProgramTypeEnum.h"
 #include "Registry.h"
+#include "Renderer.h"
 #include <stdexcept>
 
 // Static variables init
-std::unique_ptr<SDL_Renderer, SDL_Destroyers> Program::d_renderer = std::unique_ptr<SDL_Renderer, SDL_Destroyers>();
-std::unique_ptr<SDL_Window, SDL_Destroyers> Program::d_window = std::unique_ptr<SDL_Window, SDL_Destroyers>();
 std::unique_ptr<TTF_Font, TTF_Destroyers> Program::d_font = std::unique_ptr<TTF_Font, TTF_Destroyers>();
 SDL_Color Program::d_textColor;
 SDL_Color Program::d_highlightColor;
 SDL_Event Program::event;
 bool Program::initialized = false;
-bool Program::isRunning = false;
+ProgramState Program::programState = ProgramState::TERMINUS;
 ProgramTypeEnum Program::m_nextProgram = ProgramTypeEnum::NO_TYPE;
 Registry Program::registry;
 
 //Constants
 namespace {
-constexpr char PROGRAM_NAME[] = "LazyFoo CMake Tools";
 constexpr char LAZY_FONT_PATH[] = "../assets/fonts/lazy.ttf";
-
 constexpr int MEDIUM_FONT_SIZE = 28;
 }// namespace
 
@@ -34,7 +30,7 @@ Program::Program(ProgramTypeEnum anEnum) : m_programType(anEnum)
   }
 }
 
-Program::~Program() 
+Program::~Program()
 {
   registry.removeOrphans();
 }
@@ -50,21 +46,6 @@ void Program::init()
   if (SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1") == 0U) {
     Logger::warn("Program::init: Linear texture filtering not enabled!");
   }
-
-  //Create window
-  d_window.reset(SDL_CreateWindow(PROGRAM_NAME, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN));
-  if (d_window == nullptr) {
-    Logger::error("Program::init: Window could not be created! SDL Error:");
-    throw std::runtime_error(SDL_GetError());
-  }
-  //Create vsynced renderer for window
-  d_renderer.reset(SDL_CreateRenderer(d_window.get(), -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC));
-  if (d_renderer == nullptr) {
-    Logger::error("Program::init: Renderer could not be created! SDL Error:");
-    throw std::runtime_error(SDL_GetError());
-  }
-  //Initialize renderer color
-  SDL_SetRenderDrawColor(d_renderer.get(), 0xFF, 0xFF, 0xFF, 0xFF);
 
   //Initialize PNG loading
   int imgFlags = IMG_INIT_PNG;
@@ -89,43 +70,36 @@ void Program::init()
   d_highlightColor = { 0xFF, 0, 0, 0xFF };
 }
 
-void Program::stop(ProgramTypeEnum nextType = ProgramTypeEnum::NO_TYPE)
+void Program::addNewProgram(ProgramTypeEnum nextType)
 {
-  isRunning = false;
+  programState = ProgramState::ADD;
   m_nextProgram = nextType;
 }
 
-void Program::renderInit()
+void Program::endProgram()
 {
-  //Clear screen
-  SDL_SetRenderDrawColor(Program::d_renderer.get(), 0xFF, 0xFF, 0xFF, 0xFF);
-  SDL_RenderClear(d_renderer.get());
+  programState = ProgramState::REMOVE;
 }
 
-void Program::renderPresent()
+ProgramState Program::run()
 {
-  //Update screen
-  SDL_RenderPresent(d_renderer.get());
-}
-
-ProgramTypeEnum Program::run()
-{
-  isRunning = true;
+  programState = ProgramState::RUNNING;
   //While application is running
-  while (isRunning) {
+  while (programState == ProgramState::RUNNING) {
 
     //Handle events on queue
     while (SDL_PollEvent(&event) != 0) {
       //User requests quit
       if (event.type == SDL_QUIT) {
-        return ProgramTypeEnum::TERMINUS;
+        return ProgramState::TERMINUS;
       } else {
         handleEvents();
       }
     }
-    renderInit();
-    renderMain();
-    renderPresent();
+    update();
+    Renderer::renderClear();
+    render();
+    Renderer::update();
   }
-  return m_nextProgram;
+  return programState;
 }

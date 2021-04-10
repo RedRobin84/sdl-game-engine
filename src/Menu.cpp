@@ -1,20 +1,23 @@
 #include "Menu.h"
 #include "Logger.h"
 #include "Strings.h"
+#include "Renderer.h"
+#include "ProgramType.h"
 
 #include <stdexcept>
 #include <algorithm>
 
 using Programs::Menu::SELECT_PROGRAM;
 
-Menu::Menu() : Program(ProgramTypeEnum::MENU),
-               TOTAL_DATA(ProgramType::getNameMap().size()),
-               m_currentData(0),
-               m_currentType(ProgramTypeEnum::MENU)
+Menu::Menu() : Program(ProgramTypeEnum::MENU)
 
 {
+  if (m_programsToDisplay.empty()) {
+    throw std::runtime_error("Menu::Menu: Empty program container.");
+  }
+  m_nextProgram = m_programsToDisplay.front();
   if (loadMedia() == State::FAILURE) {
-    throw std::runtime_error("Audio::init: Some exceptions occured during program initialization.");
+    throw std::runtime_error("Menu::Menu: Some exceptions occured during program initialization.");
   }
 }
 
@@ -24,33 +27,32 @@ void Menu::handleEvents()
   if (event.type == SDL_KEYDOWN) {
     switch (event.key.keysym.sym) {
     case SDLK_UP:
-      m_programNames[m_currentData].loadFromRenderedText(d_renderer.get(), m_currentType.getName(), d_textColor, d_font.get());
-      m_currentType.set(m_currentType.previous());
-      --m_currentData;
-      if (m_currentData < 0) {
-        m_currentData = TOTAL_DATA - 1;
+      m_index->texture.loadFromRenderedText(m_index->name, d_textColor, d_font.get());
+      if (m_index == m_menuItems.begin()) {
+        m_index = m_menuItems.end();
       }
-      m_programNames[m_currentData].loadFromRenderedText(d_renderer.get(), m_currentType.getName(), d_highlightColor, d_font.get());
+      m_index--;
+
+      m_index->texture.loadFromRenderedText(m_index->name, d_highlightColor, d_font.get());
+      m_nextProgram = m_index->programType;
       break;
 
     case SDLK_DOWN:
-      m_programNames[m_currentData].loadFromRenderedText(d_renderer.get(), m_currentType.getName(), d_textColor, d_font.get());
-      m_currentType.set(m_currentType.next());
-      ++m_currentData;
-      if (m_currentData >= TOTAL_DATA) {
-        m_currentData = 0;
+      m_index->texture.loadFromRenderedText(m_index->name, d_textColor, d_font.get());
+      if (m_index == std::prev(m_menuItems.end())) {
+        m_index = std::prev(m_menuItems.begin());
       }
-      m_programNames[m_currentData].loadFromRenderedText(d_renderer.get(), m_currentType.getName(), d_highlightColor, d_font.get());
+      m_index++;
+
+      m_index->texture.loadFromRenderedText(m_index->name, d_highlightColor, d_font.get());
+      m_nextProgram = m_index->programType;
       break;
 
     case SDLK_RETURN:
-      if (m_currentType.get() == m_programType.get()) {
-        break;
-      }
-      Program::stop(m_currentType.get());
+      Program::addNewProgram(m_nextProgram);
       break;
     case SDLK_ESCAPE:
-      Program::stop(ProgramTypeEnum::NO_TYPE);
+      Program::endProgram();
       break;
     }
   }
@@ -58,38 +60,39 @@ void Menu::handleEvents()
 
 State Menu::loadMedia()
 {
-  m_programNames.resize(ProgramType::getNameMap().size());
+  m_menuItems.resize(m_programsToDisplay.size());
 
   //Render the prompt
-  if (!m_promptTextTexture.loadFromRenderedText(d_renderer.get(), SELECT_PROGRAM, d_textColor, d_font.get())) {
+  if (!m_promptTextTexture.loadFromRenderedText(SELECT_PROGRAM, d_textColor, d_font.get())) {
     Logger::error("Menu::loadMedia: Failed to render prompt text!");
     return State::FAILURE;
   }
 
-  if (m_programNames.size() != ProgramType::getNameMap().size()) {
-    Logger::error("Menu::loadMedia: Size of both containers does not match.");
-    return State::FAILURE;
-  }
-
   int index = 0;
-    State state = State::SUCCESS;
-  std::for_each(ProgramType::getNameMap().begin(), ProgramType::getNameMap().end(), [this, index, state](const auto &mapRecord) mutable {
-    if (!m_programNames[index].loadFromRenderedText(d_renderer.get(), mapRecord.second, d_textColor, d_font.get())) {
-      Logger::error("Menu::getProgramNames: Unable to load texture %s from program names.", mapRecord.second);
+  State state = State::SUCCESS;
+  std::for_each(m_programsToDisplay.begin(), m_programsToDisplay.end(), [this, index, state](const auto &programType) mutable {
+    m_menuItems[index].programType = programType;
+    m_menuItems[index].name = ProgramType::getName(programType);
+    if (!m_menuItems[index].texture.loadFromRenderedText(m_menuItems[index].name, d_textColor, d_font.get())) {
+      Logger::error("Menu::getProgramNames: Unable to load texture %s from program names.", m_menuItems[index].name.data());
       state = State::FAILURE;
     }
     index++;
   });
+  m_index = m_menuItems.begin();
   return state;
 }
 
-void Menu::renderMain()
+void Menu::update() {}
+
+void Menu::render()
 {
+  Renderer::setDrawColor(0xFF, 0xFF, 0xFF, 0xFF);
   //Render text textures
   int counter = 0;
-  m_promptTextTexture.render(d_renderer.get(), (SCREEN_WIDTH - m_promptTextTexture.getWidth()) / 2, 0);
-  std::for_each(begin(m_programNames), end(m_programNames), [this, counter](LTexture &texture) mutable {
-    texture.render(d_renderer.get(), (SCREEN_WIDTH - texture.getWidth()) / 2, m_promptTextTexture.getHeight() + texture.getHeight() * counter);
+  m_promptTextTexture.render((Renderer::SCREEN_WIDTH - m_promptTextTexture.getWidth()) / 2, 0);
+  std::for_each(begin(m_menuItems), end(m_menuItems), [this, counter](const auto &menuItem) mutable {
+    menuItem.texture.render((Renderer::SCREEN_WIDTH - menuItem.texture.getWidth()) / 2, m_promptTextTexture.getHeight() + menuItem.texture.getHeight() * counter);
     counter++;
   });
 }
