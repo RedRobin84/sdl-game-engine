@@ -1,5 +1,6 @@
 #include "Audio.h"
 #include "Logger.h"
+#include "Renderer.h"
 
 #include <stdexcept>
 #include <string_view>
@@ -37,7 +38,7 @@ Audio::~Audio()
 State Audio::loadMedia()
 {
   //Set starting prompt
-  gPromptTexture.loadFromRenderedText(d_renderer.get(), PROMPT_MESSAGE, d_textColor, d_font.get());
+  gPromptTexture.loadFromRenderedText(PROMPT_MESSAGE, d_textColor, d_font.get());
 
   //Get capture device count
   gRecordingDeviceCount = SDL_GetNumAudioDevices(SDL_TRUE);
@@ -61,7 +62,7 @@ State Audio::loadMedia()
       promptText << i << ": " << SDL_GetAudioDeviceName(i, SDL_TRUE);
 
       //Set texture from name
-      gDeviceTextures[i].loadFromRenderedText(d_renderer.get(), promptText.str().c_str(), d_textColor, d_font.get());
+      gDeviceTextures[i].loadFromRenderedText(promptText.str().c_str(), d_textColor, d_font.get());
     }
   }
   return State::SUCCESS;
@@ -70,9 +71,9 @@ State Audio::loadMedia()
 void Audio::handleEvents()
 {
   if (event.type == SDL_KEYDOWN) {
-      if (event.key.keysym.sym == SDLK_ESCAPE) {
-      Program::stop(ProgramTypeEnum::NO_TYPE);
-      }
+    if (event.key.keysym.sym == SDLK_ESCAPE) {
+      Program::endProgram();
+    }
   }
   //Do current state event handling
   switch (currentState) {
@@ -101,7 +102,7 @@ void Audio::handleEvents()
           if (recordingDeviceId == 0) {
             //Report error
             Logger::error("Failed to open recording device! SDL Error: %s", SDL_GetError());
-            gPromptTexture.loadFromRenderedText(d_renderer.get(), RECORDING_ERROR_MESSAGE, d_textColor, d_font.get());
+            gPromptTexture.loadFromRenderedText(RECORDING_ERROR_MESSAGE, d_textColor, d_font.get());
             currentState = RecordingState::ERROR;
           }
           //Device opened successfully
@@ -121,7 +122,7 @@ void Audio::handleEvents()
             if (playbackDeviceId == 0) {
               //Report error
               Logger::error("Failed to open playback device! SDL Error: %s", SDL_GetError());
-              gPromptTexture.loadFromRenderedText(d_renderer.get(), PLAYBACK_ERROR_MESSAGE, d_textColor, d_font.get());
+              gPromptTexture.loadFromRenderedText(PLAYBACK_ERROR_MESSAGE, d_textColor, d_font.get());
               currentState = RecordingState::ERROR;
             }
             //Device opened successfully
@@ -143,7 +144,7 @@ void Audio::handleEvents()
               memset(gRecordingBuffer, 0, gBufferByteSize);
 
               //Go on to next state
-              gPromptTexture.loadFromRenderedText(d_renderer.get(), RECORDING_PROMPT_MESSAGE, d_textColor, d_font.get());
+              gPromptTexture.loadFromRenderedText(RECORDING_PROMPT_MESSAGE, d_textColor, d_font.get());
               currentState = RecordingState::STOPPED;
             }
           }
@@ -164,7 +165,7 @@ void Audio::handleEvents()
         SDL_PauseAudioDevice(recordingDeviceId, SDL_FALSE);
 
         //Go on to next state
-        gPromptTexture.loadFromRenderedText(d_renderer.get(), RECORDING_PROGRESS, d_textColor, d_font.get());
+        gPromptTexture.loadFromRenderedText(RECORDING_PROGRESS, d_textColor, d_font.get());
         currentState = RecordingState::RECORDING;
       }
     }
@@ -182,7 +183,7 @@ void Audio::handleEvents()
         SDL_PauseAudioDevice(playbackDeviceId, SDL_FALSE);
 
         //Go on to next state
-        gPromptTexture.loadFromRenderedText(d_renderer.get(), "Playing...", d_textColor, d_font.get());
+        gPromptTexture.loadFromRenderedText("Playing...", d_textColor, d_font.get());
         currentState = RecordingState::PLAYBACK;
       }
       //Record again
@@ -195,12 +196,12 @@ void Audio::handleEvents()
         SDL_PauseAudioDevice(recordingDeviceId, SDL_FALSE);
 
         //Go on to next state
-        gPromptTexture.loadFromRenderedText(d_renderer.get(), "Recording...", d_textColor, d_font.get());
+        gPromptTexture.loadFromRenderedText("Recording...", d_textColor, d_font.get());
         currentState = RecordingState::RECORDING;
       }
     }
     break;
-    case RecordingState::ERROR: 
+  case RecordingState::ERROR:
     throw std::logic_error("Audio::handleEvents: An error occured.");
   default:
     break;
@@ -225,16 +226,18 @@ void Audio::audioPlaybackCallback(void *userdata, Uint8 *stream, int len)
   gBufferBytePosition += len;
 }
 
-void Audio::renderMain()
+void Audio::update() {}
+
+void Audio::render()
 {
   //Render prompt centered at the top of the screen
-  gPromptTexture.render(d_renderer.get(), (SCREEN_WIDTH - gPromptTexture.getWidth()) / 2, 0);
+  gPromptTexture.render((Renderer::SCREEN_WIDTH - gPromptTexture.getWidth()) / 2, 0);
   //User is selecting
   if (currentState == RecordingState::SELECTING_DEVICE) {
     //Render device names
     int yOffset = gPromptTexture.getHeight() * 2;
     for (int i = 0; i < gRecordingDeviceCount; ++i) {
-      gDeviceTextures[i].render(d_renderer.get(), 0, yOffset);
+      gDeviceTextures[i].render(0, yOffset);
       yOffset += gDeviceTextures[i].getHeight() + 1;
     }
   } else if (currentState == RecordingState::RECORDING) {
@@ -247,7 +250,7 @@ void Audio::renderMain()
       SDL_PauseAudioDevice(recordingDeviceId, SDL_TRUE);
 
       //Go on to next state
-      gPromptTexture.loadFromRenderedText(d_renderer.get(), "Press 1 to play back. Press 2 to record again.", d_textColor, d_font.get());
+      gPromptTexture.loadFromRenderedText("Press 1 to play back. Press 2 to record again.", d_textColor, d_font.get());
       currentState = RecordingState::RECORDED;
     }
 
@@ -264,7 +267,7 @@ void Audio::renderMain()
       SDL_PauseAudioDevice(playbackDeviceId, SDL_TRUE);
 
       //Go on to next state
-      gPromptTexture.loadFromRenderedText(d_renderer.get(), "Press 1 to play back. Press 2 to record again.", d_textColor, d_font.get());
+      gPromptTexture.loadFromRenderedText("Press 1 to play back. Press 2 to record again.", d_textColor, d_font.get());
       currentState = RecordingState::RECORDED;
     }
 

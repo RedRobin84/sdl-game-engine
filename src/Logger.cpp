@@ -16,18 +16,16 @@ uint8_t Logger::options = Logger::LOGGER_DEFAULT;
 size_t Logger::userStackSize = DEFAULT_STACK_SIZE;
 uint16_t Logger::userBufferSize = DEFAULT_BUFFER_SIZE;
 
-enum class Logger::MsgType 
-{ LOGGER,
+enum class Logger::MsgType { LOGGER,
   INFO,
   WARN,
   ERROR,
-  DEBUG 
-  };
+  DEBUG
+};
 
-enum class Logger::State
-{
-    FAILURE,
-    SUCCESS
+enum class Logger::State {
+  FAILURE,
+  SUCCESS
 };
 
 void Logger::init(uint8_t opts, const char *userFN, const size_t userSize, const uint16_t userBuffSize)
@@ -254,9 +252,9 @@ void Logger::stackMessage(std::unique_ptr<char[]> message, MsgType msgType)
 
   if (messageStack.size() >= userStackSize || msgType == MsgType::ERROR) {
     if ((options & DEBUG_MODE) != 0)
-      debug("Logger::stackMessage: Container full or message of type [ERROR] = flush()");
-
-    flush();
+      flush();
+      
+    debug("Logger::stackMessage: Container full or message of type [ERROR] = flush()");
   }
 }
 

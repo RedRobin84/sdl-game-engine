@@ -10,7 +10,7 @@ int main(int argc, char *argv[])
     Logger::init(Logger::WRITE_TO_FILE | Logger::BUFFERED_LOGGING | Logger::DEBUG_MODE);
     try
     {
-        ProgramManager pm;
+        ProgramManager pm(ProgramTypeEnum::MENU);
         while (!pm.getProgramStack().empty())
         {
             pm.manageCurrentProgram();

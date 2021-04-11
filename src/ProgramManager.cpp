@@ -5,9 +5,9 @@
 
 #include "SDL_ttf_platform.h"
 
-ProgramManager::ProgramManager() : m_factory(std::make_unique<ProgramFactory>())
+ProgramManager::ProgramManager(ProgramTypeEnum startingProgramType) : m_factory(std::make_unique<ProgramFactory>())
 {
-  m_programStack.emplace(m_factory->create(ProgramTypeEnum::MENU));
+  m_programStack.emplace(m_factory->create(startingProgramType));
 }
 
 ProgramManager::~ProgramManager()
@@ -19,16 +19,20 @@ ProgramManager::~ProgramManager()
 
 void ProgramManager::manageCurrentProgram()
 {
-  ProgramTypeEnum programType = m_programStack.top()->run();
-  if (ProgramTypeEnum::TERMINUS == programType) {
-  m_programStack = ProgramStack();
-  return;
-  }
-  if (m_programStack.top()->getNextProgram() == ProgramTypeEnum::NO_TYPE) {
-    Logger::debug("ProgramManager::switchProgram: NO_TYPE program. Popping up.");
+  ProgramState programState = m_programStack.top()->run();
+
+  switch (programState) {
+  case ProgramState::REMOVE:
     m_programStack.pop();
-    return;
+    Logger::debug("ProgramManager::manageCurrentProgram: Removed program. Current stack: %u", m_programStack.size());
+    break;
+  case ProgramState::ADD:
+    m_programStack.emplace(m_factory->create(m_programStack.top().get()->getNextProgram()));
+    Logger::debug("ProgramManager::manageCurrentProgram: Added program. Current stack: %u", m_programStack.size());
+    break;
+  default:
+    m_programStack = ProgramStack();
+    Logger::debug("ProgramManager::manageCurrentProgram: TERMINUS or unknown type of ProgramState. Exiting...");
+    break;
   }
-  m_programStack.emplace(m_factory->create(m_programStack.top().get()->getNextProgram()));
-  Logger::debug("ProgramManager::switchProgram: Adding program. Current stack: %u", m_programStack.size());
 }

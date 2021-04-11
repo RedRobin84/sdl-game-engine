@@ -4,11 +4,6 @@
 
 using namespace ::std::literals::string_view_literals;
 
-namespace ProgramNames {
-inline constexpr auto MENU = "MENU"sv;
-inline constexpr auto AUDIO = "AUDIO"sv;
-}// namespace ProgramNames
-
 namespace Programs::Menu {
 inline constexpr auto SELECT_PROGRAM = "Select a program:"sv;
 inline constexpr char TITLE[] = "SDL Tutorial";
@@ -16,7 +11,7 @@ inline constexpr char TITLE[] = "SDL Tutorial";
 
 namespace LoggerTags {
 inline constexpr char ERROR[] = "[ERROR]";
-inline constexpr char INFO[] = "[INFO]";
+inline constexpr char INFO[] = "[INFO] ";
 inline constexpr char WARN[] = "[WARN]";
 inline constexpr char LOGGER[] = "[LOGGER]";
 inline constexpr char DEBUG[] = "[DEBUG]";

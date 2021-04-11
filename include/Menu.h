@@ -10,16 +10,22 @@ class Menu : public Program
 
 public:
   Menu();
-  void handleEvents() override;
 
 private:
-  const int TOTAL_DATA;
+  struct MenuItem
+  {
+    LTexture texture;
+    std::string_view name;
+    ProgramTypeEnum programType;
+  };
 
-  int m_currentData;
-  std::vector<LTexture> m_programNames;
-  ProgramType m_currentType;
+  std::vector<MenuItem> m_menuItems;
+  std::vector<MenuItem>::iterator m_index;
+  const std::vector<ProgramTypeEnum> m_programsToDisplay{ ProgramTypeEnum::AUDIO, ProgramTypeEnum::PARTICLE_ENGINES };
   LTexture m_promptTextTexture;
 
+  void handleEvents() override;
+  void update() override;
   [[nodiscard]] State loadMedia() override;
-  void renderMain() override;
+  void render() override;
 };
