@@ -38,7 +38,7 @@ public:
 
 private:
   std::unique_ptr<SDL_Texture, void(*)(SDL_Texture*)> m_Texture{nullptr, SDL_DestroyTexture};
-  std::string m_name{nullptr};
+  std::string m_name;
   int m_Width = 0;
   int m_Height = 0;
 };
