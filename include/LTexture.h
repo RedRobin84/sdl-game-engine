@@ -13,7 +13,7 @@ class LTexture : public Asset
 {
 public:
   LTexture() = default;
-  LTexture(std::string_view path) : Asset(path) {}
+  LTexture(std::string_view path) : Asset("") {}
   LTexture(LTexture &) = delete;
   LTexture(LTexture &&) = default;
   LTexture &operator=(LTexture &) = delete;

@@ -7,6 +7,9 @@
 
 bool LTexture::loadFromFile(const std::string_view path)
 {
+  if (!m_name.empty()) {
+  Logger::warn("LTexture::loadFromFile: Overwriting %s with %s", m_name.data(), path.data());
+  }
   reset();
   auto loadedSurface = std::unique_ptr<SDL_Surface, void (*)(SDL_Surface *)>(IMG_Load(path.data()), SDL_FreeSurface);
   if (loadedSurface == nullptr) {
@@ -21,6 +24,7 @@ bool LTexture::loadFromFile(const std::string_view path)
   }
   m_Width = loadedSurface->w;
   m_Height = loadedSurface->h;
+  m_name = path;
 
   return true;
 }
@@ -40,6 +44,7 @@ bool LTexture::loadFromRenderedText(std::string_view textureText, SDL_Color text
   }
   m_Width = textSurface->w;
   m_Height = textSurface->h;
+  m_name = textureText;
 
   return true;
 }
