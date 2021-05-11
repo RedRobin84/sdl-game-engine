@@ -1,7 +1,6 @@
 #include "Renderable.h"
-#include "Registry.h"
 #include "LTexture.h"
-
+#include "Registry.h"
 #include <algorithm>
 #include <stdexcept>
 
@@ -10,7 +9,7 @@ Renderable::Renderable(std::string_view texture, Registry &registry)
   m_textures.emplace_back(registry.registerTexture(texture));
 }
 
-Renderable::Renderable(std::vector<std::string_view> textures, Registry &registry)
+Renderable::Renderable(const std::vector<std::string_view> &textures, Registry &registry)
 {
   std::for_each(textures.begin(), textures.end(), [&](std::string_view texturePath) {
     m_textures.emplace_back(registry.registerTexture(texturePath));
