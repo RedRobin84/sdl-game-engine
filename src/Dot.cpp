@@ -39,7 +39,7 @@ Dot::Dot(Registry &registry)
 
   //Initialize particles
   for (int i = 0; i < TOTAL_PARTICLES; ++i) {
-    m_particles[i] = new Particle(m_PosX, m_PosY, m_particleTextures[1].get(), m_ShimmeringTexture.get());
+    m_particles[i] = new Particle(m_PosX, m_PosY, m_particleTextures[rand() % 3].get(), m_ShimmeringTexture.get());
   }
 }
 
@@ -122,7 +122,7 @@ void Dot::renderParticles()
     //Delete and replace dead particles
     if (m_particles[i]->isDead()) {
       delete m_particles[i];
-      m_particles[i] = new Particle(m_PosX, m_PosY, m_particleTextures[1].get(), m_ShimmeringTexture.get());
+      m_particles[i] = new Particle(m_PosX, m_PosY, m_particleTextures[rand() % 3].get(), m_ShimmeringTexture.get());
     }
   }
 
