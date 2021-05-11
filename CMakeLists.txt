@@ -24,7 +24,7 @@ add_definitions(-D_CRT_SECURE_NO_WARNINGS)
 
 file(GLOB SOURCES "src/*.cpp")
 
-add_executable(lazyfoo_cmaketools ${SOURCES})
+add_executable(lazyfoo_cmaketools main.cpp ${SOURCES})
 
 option(ENABLE_COMPILER_WARNINGS OFF)
 if(ENABLE_COMPILER_WARNINGS)
@@ -79,3 +79,6 @@ include(CTest)
 enable_testing()
 add_executable(logger_test tests/LoggerTest.cpp src/Logger.cpp)
 add_test(LoggerTest logger_test)
+add_executable(renderable_test tests/RenderableTest.cpp ${SOURCES})
+TARGET_LINK_LIBRARIES(renderable_test ${SDL2_LIBRARY} ${SDL2TTF_LIBRARY} ${SDL2_IMAGE_LIBRARY})
+add_test(RenderableTest renderable_test)
