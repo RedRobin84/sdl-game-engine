@@ -32,7 +32,7 @@ Program::Program(ProgramTypeEnum anEnum) : m_programType(anEnum)
 
 Program::~Program()
 {
-  registry.removeOrphans();
+  registry.removeExpired();
 }
 
 void Program::init()

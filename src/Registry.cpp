@@ -3,21 +3,20 @@
 #include "AssetFactory.h"
 #include "LTexture.h"
 
-namespace {
-constexpr size_t SINGLE = 1;
-}
-
 std::shared_ptr<Asset> Registry::registerAsset(std::string_view assetPath)
 {
   if (m_assetMap.contains(assetPath)) {
-    std::shared_ptr<Asset> existingAsset{ m_assetMap[assetPath] };
+    if (auto maybeAsset = m_assetMap[assetPath].lock()) {
     Logger::debug("Registry::registerAsset: New shared_ptr for asset: %s. Reference count: %ld", assetPath.data(), m_assetMap[assetPath].use_count());
-    return existingAsset;
+    return maybeAsset;
+    }
+    m_assetMap.erase(assetPath);
   }
 
-  std::shared_ptr<Asset> newShared = createNewAssetRegistration(assetPath);
-  Logger::debug("Registry::registerAsset: New shared_ptr for asset: %s. Total asset pool size: %zu", assetPath.data(), m_assetMap.size());
-  return newShared;
+  std::shared_ptr<Asset> newAsset{AssetFactory::create(assetPath)};
+  m_assetMap.emplace(assetPath, newAsset);
+  Logger::debug("Registry::registerAsset: New registration for asset: %s. Reference count: %ld", assetPath.data(), newAsset.use_count());
+  return newAsset;
 }
 
 std::shared_ptr<LTexture> Registry::registerTexture(std::string_view path)
@@ -29,20 +28,13 @@ std::shared_ptr<LTexture> Registry::registerTexture(std::string_view path)
   throw std::bad_cast();
 }
 
-void Registry::removeOrphans()
+void Registry::removeExpired()
 {
-  Logger::debug("Registry::removeOrphans: Removing assets with single ref count.");
+  Logger::debug("Registry::removeExpired: Removing expired weak_ptrs.");
 
   std::erase_if(m_assetMap, [](auto &mapRecord) {
-    return mapRecord.second.use_count() == SINGLE;
+    return mapRecord.second.expired();
   });
 
-  Logger::debug("Registry::removeOrphans: Asset pool after orphan removal: %zu", m_assetMap.size());
-}
-
-std::shared_ptr<Asset> Registry::createNewAssetRegistration(std::string_view assetPath)
-{
-  auto [newAsset, inserted] = m_assetMap.emplace(assetPath, AssetFactory::create(assetPath));
-  Logger::debug("Registry::createNewAssetRegistration: New registration for asset: %s. Reference count: %ld", newAsset->first.data(), newAsset->second.use_count());
-  return newAsset->second;
+  Logger::debug("Registry::removeExpired: Asset pool after expired weak_ptrs removal: %zu", m_assetMap.size());
 }
