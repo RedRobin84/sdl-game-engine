@@ -15,6 +15,7 @@ std::shared_ptr<Asset> AssetFactory::create(std::string_view assetPath)
     std::shared_ptr<LTexture> newTexture = std::make_shared<LTexture>(assetPath);
     if (!newTexture->loadFromFile(assetPath)) {
       Logger::error("AssetFactory::create: Unable to load texture from file: %s", IMG_GetError());
+      throw std::invalid_argument("AssetFactory::create: Unable to create new asset instance from enum.");
     }
     return newTexture;
   }
