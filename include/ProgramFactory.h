@@ -10,5 +10,5 @@ class Program;
 class ProgramFactory
 {
 public:
-  static std::unique_ptr<Program> create(ProgramTypeEnum anEnum);
+  std::unique_ptr<Program> create(ProgramTypeEnum anEnum);
 };

@@ -9,10 +9,7 @@ constexpr Uint8 BRIGHTEST = 0xFF;
 constexpr std::string_view PROGRAM_NAME = "MY_FIRST_ENGINE";
 }// namespace
 
-SDL_Window *Renderer::m_window;
-SDL_Renderer *Renderer::m_renderer;
-
-void Renderer::init()
+Renderer::Renderer()
 {
   //Create window
   m_window = SDL_CreateWindow(PROGRAM_NAME.data(), SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
