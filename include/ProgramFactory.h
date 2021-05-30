@@ -10,5 +10,5 @@ class Program;
 class ProgramFactory
 {
 public:
-  std::unique_ptr<Program> create(ProgramTypeEnum anEnum);
+  std::shared_ptr<Program> create(ProgramTypeEnum anEnum, const std::shared_ptr<Registry> &Registry);
 };

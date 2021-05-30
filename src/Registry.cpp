@@ -6,10 +6,9 @@
 #include "LTexture.h"
 #include "Renderer.h"
 
-Registry::Registry() : 
-                        m_assetFactory(std::make_unique<AssetFactory>()), 
-                        m_programFactory(std::make_unique<ProgramFactory>()), 
-                        m_systemFactory(std::make_unique<SystemFactory>()) {}
+Registry::Registry() : m_assetFactory(std::make_unique<AssetFactory>()),
+                       m_programFactory(std::make_unique<ProgramFactory>()),
+                       m_systemFactory(std::make_unique<SystemFactory>()) {}
 
 
 std::shared_ptr<Asset> Registry::registerAsset(std::string_view assetPath)
@@ -32,17 +31,31 @@ std::shared_ptr<System> Registry::registerSystem(SystemType systemType)
 {
   if (m_systemMap.contains(systemType)) {
     if (auto maybeSystem = m_systemMap[systemType].lock()) {
-    Logger::debug("Registry::registerSystem: New shared_ptr for system: %s. Reference count: %ld", getSystemName(systemType)), m_assetMap[systemType].use_count());
-    return maybeSystem;
+      Logger::debug("Registry::registerSystem: New shared_ptr for system: %s. Reference count: %ld", getSystemName(systemType), maybeSystem.use_count());
+      return maybeSystem;
     }
     m_systemMap.erase(systemType);
   }
 
   std::shared_ptr<System> newSystem{ m_systemFactory->create(systemType) };
   m_assetMap.emplace(systemType, newSystem);
-  Logger::debug("Registry::registerSystem: New registration for system: %s. Reference count: %ld", getSystemName(systemType)), newSystem.use_count());
+  Logger::debug("Registry::registerSystem: New registration for system: %s. Reference count: %ld", getSystemName(systemType), newSystem.use_count());
   return newSystem;
 }
+
+std::shared_ptr<Program> Registry::registerProgram(ProgramTypeEnum programType, const std::shared_ptr<Registry> &registry)
+{
+  if (m_programMap.contains(programType)) {
+    std::shared_ptr<Program> existingProgram{ m_programMap[programType] };
+    Logger::debug("Registry::registerProgram: Calling existing program: %s. Reference count: %ld", ProgramTypeEnumUtils::getProgramName(programType), m_programMap[programType].use_count());
+    return existingProgram;
+  }
+
+  std::shared_ptr<Program> newShared{ m_programFactory->create(programType, registry) };
+  Logger::debug("Registry::registerProgram: Creating new program: %s. Total program pool size: %zu", ProgramTypeEnumUtils::getProgramName(programType), m_programMap.size());
+  return newShared;
+}
+
 
 std::shared_ptr<LTexture> Registry::registerTexture(std::string_view path)
 {
@@ -53,21 +66,23 @@ std::shared_ptr<LTexture> Registry::registerTexture(std::string_view path)
   throw std::bad_cast();
 }
 
-std::shared_ptr<Renderer> Registry::registerRenderer(SystemType systemType)
+std::shared_ptr<Renderer> Registry::registerRenderer()
 {
-  std::shared_ptr<Renderer> maybeRenderer = std::dynamic_pointer_cast<Renderer>(registerSystem(systemType));
+  std::shared_ptr<Renderer> maybeRenderer = std::dynamic_pointer_cast<Renderer>(registerSystem(SystemType::RENDERER));
   if (maybeRenderer) {
     return maybeRenderer;
   }
   throw std::bad_cast();
 }
 
-
 void Registry::removeExpired()
 {
   Logger::debug("Registry::removeExpired: Removing expired weak_ptrs.");
 
   std::erase_if(m_assetMap, [](auto &mapRecord) {
+    return mapRecord.second.expired();
+  });
+  std::erase_if(m_systemMap, [](auto &mapRecord) {
     return mapRecord.second.expired();
   });
 

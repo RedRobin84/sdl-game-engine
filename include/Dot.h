@@ -22,7 +22,7 @@ public:
   static constexpr int DOT_VEL = 10;
 
   //Initializes the variables and allocates particles
-  Dot(Registry &registry);
+  Dot(Registry *registry);
 
   //Deallocates particles
   ~Dot();

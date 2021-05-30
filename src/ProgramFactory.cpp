@@ -6,15 +6,15 @@
 #include <memory>
 #include <stdexcept>
 
-std::unique_ptr<Program> ProgramFactory::create(ProgramTypeEnum anEnum)
+std::shared_ptr<Program> ProgramFactory::create(ProgramTypeEnum anEnum, const std::shared_ptr<Registry> &registry)
 {
   switch (anEnum) {
   case ProgramTypeEnum::MENU:
-    return std::make_unique<Menu>();
+    return std::make_shared<Menu>(registry);
   case ProgramTypeEnum::AUDIO:
-    return std::make_unique<Audio>();
+    return std::make_shared<Audio>(registry);
   case ProgramTypeEnum::PARTICLE_ENGINES:
-    return std::make_unique<ParticleEngines>();
+    return std::make_shared<ParticleEngines>(registry);
 
   default:
     throw std::invalid_argument("ProgramFactory::create: Unable to create new program instance from enum.");

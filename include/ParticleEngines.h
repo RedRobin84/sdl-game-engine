@@ -6,7 +6,7 @@
 class ParticleEngines : public Program
 {
 public:
-  ParticleEngines();
+  ParticleEngines(const std::shared_ptr<Registry> &registry);
 
 private:
   Dot m_dot;

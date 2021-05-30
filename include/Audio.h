@@ -9,7 +9,7 @@ class Audio : public Program
 {
 
 public:
-  Audio();
+  Audio(const std::shared_ptr<Registry> &registry);
   ~Audio();
 
 private:

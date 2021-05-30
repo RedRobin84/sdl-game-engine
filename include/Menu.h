@@ -9,7 +9,7 @@ class Menu : public Program
 {
 
 public:
-  Menu();
+  Menu(const std::shared_ptr<Registry> &registry);
 
 private:
   struct MenuItem

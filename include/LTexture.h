@@ -9,6 +9,8 @@
 #include <string>
 #include <memory>
 
+class Renderer;
+
 class LTexture : public Asset
 {
 public:
@@ -23,8 +25,8 @@ public:
   static constexpr Uint8 FULL_INTENSITY = 0xFF;
   static constexpr Uint8 ZERO_INTENSITY = 0x00;
 
-  [[nodiscard]] bool loadFromFile(std::string_view path);
-  [[nodiscard]] bool loadFromRenderedText(std::string_view textureText, SDL_Color textColor, TTF_Font *font);
+  [[nodiscard]] bool loadFromFile(std::string_view path, SDL_Renderer *renderer);
+  [[nodiscard]] bool loadFromRenderedText(std::string_view textureText, SDL_Color textColor, TTF_Font *font, SDL_Renderer *renderer);
   void reset();
   void setColor(Uint8 red, Uint8 green, Uint8 blue);
   inline void setName(const std::string &name) { this->m_name = name; }

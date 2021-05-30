@@ -2,6 +2,7 @@
 
 #include "ProgramType.h"
 #include "SDL_Helpers.h"
+#include "Registrable.h"
 #include "enum/ProgramTypeEnum.h"
 #include "enum/ProgramState.h"
 #include "enum/State.h"
@@ -10,9 +11,7 @@
 
 #include <memory>
 
-class Registry;
-
-class Program
+class Program : public Registrable
 {
 public:
   Program(const Program &program) = delete;
@@ -22,13 +21,13 @@ public:
   virtual ~Program();
 
   ProgramTypeEnum getNextProgram() { return this->m_nextProgram; }
-  ProgramState run();
+  ProgramTypeEnum run();
 
 protected:
   const ProgramTypeEnum m_programType;
-  static ProgramTypeEnum m_nextProgram;
+  ProgramTypeEnum m_nextProgram = ProgramTypeEnum::NO_TYPE;
 
-  explicit Program(ProgramTypeEnum anEnum);
+  explicit Program(ProgramTypeEnum anEnum, const std::shared_ptr<Registry> &registry);
   [[nodiscard]] virtual State loadMedia() = 0;
   virtual void handleEvents() = 0;
   virtual void update() = 0;
@@ -36,9 +35,8 @@ protected:
   void addNewProgram(ProgramTypeEnum nextProgram);
   void endProgram();
 
+  std::shared_ptr<SDL_Renderer> m_renderer;
   static std::unique_ptr<TTF_Font, TTF_Destroyers> d_font;
-
-  static Registry registry;
 
   static SDL_Color d_textColor;
   static SDL_Color d_highlightColor;

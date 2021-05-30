@@ -12,7 +12,16 @@ class Renderable
 public:
   Renderable(std::string_view texture, Registry &registry);
   Renderable(const std::vector<std::string_view> &textures, Registry &registry);
+  virtual ~Renderable() = default;
+
+  Renderable() = delete;
+  Renderable(const Renderable &) = delete;
+  Renderable &operator=(const Renderable &) = delete;
+  Renderable &operator=(Renderable &&) = delete;
+  Renderable(Renderable &&) = delete;
+
   const LTexture *getTexture(std::string_view name);
+
 
 private:
   std::vector<std::shared_ptr<LTexture>> m_textures;

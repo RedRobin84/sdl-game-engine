@@ -8,3 +8,19 @@ enum class ProgramTypeEnum : unsigned int {
   FIRST = NO_TYPE,
   LAST = AUDIO,
 };
+
+namespace ProgramTypeEnumUtils {
+
+static const char *getProgramName(ProgramTypeEnum programTypeEnum)
+{
+  switch (programTypeEnum) {
+  case ProgramTypeEnum::PARTICLE_ENGINES:
+    return "Particle engines";
+  case ProgramTypeEnum::AUDIO:
+    return "Audio";
+  default:
+    return "ERROR_UNKNOWN";
+  }
+}
+
+}// namespace ProgramTypeEnumUtils

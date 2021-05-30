@@ -19,7 +19,7 @@ constexpr std::string_view RECORDING_PROGRESS = "Recording...";
 Uint32 Audio::gBufferBytePosition = 0;
 Uint8 *Audio::gRecordingBuffer = nullptr;
 
-Audio::Audio() : Program(ProgramTypeEnum::AUDIO)
+Audio::Audio(const std::shared_ptr<Registry> &registry) : Program(ProgramTypeEnum::AUDIO, registry)
 {
   if (loadMedia() == State::FAILURE) {
     throw std::runtime_error("Audio::init: Some exceptions occured during program initialization.");

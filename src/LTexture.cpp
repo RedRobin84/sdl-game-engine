@@ -5,7 +5,7 @@
 #include "Renderer.h"
 #include <memory>
 
-bool LTexture::loadFromFile(const std::string_view path)
+bool LTexture::loadFromFile(const std::string_view path, SDL_Renderer *renderer)
 {
   if (!m_name.empty()) {
   Logger::warn("LTexture::loadFromFile: Overwriting %s with %s", m_name.data(), path.data());
@@ -17,7 +17,7 @@ bool LTexture::loadFromFile(const std::string_view path)
     return false;
   }
   SDL_SetColorKey(loadedSurface.get(), SDL_TRUE, SDL_MapRGB(loadedSurface->format, 0, FULL_INTENSITY, FULL_INTENSITY));
-  m_Texture = std::unique_ptr<SDL_Texture, void (*)(SDL_Texture *)>(SDL_CreateTextureFromSurface(Renderer::get(), loadedSurface.get()), SDL_DestroyTexture);
+  m_Texture = std::unique_ptr<SDL_Texture, void (*)(SDL_Texture *)>(SDL_CreateTextureFromSurface(renderer, loadedSurface.get()), SDL_DestroyTexture);
   if (m_Texture == nullptr) {
     Logger::error("LTexture::loadFromFile: Unable to create texture from %s! SDL_Error: %s\n", path.data(), SDL_GetError());
     return false;
@@ -29,7 +29,7 @@ bool LTexture::loadFromFile(const std::string_view path)
   return true;
 }
 
-bool LTexture::loadFromRenderedText(std::string_view textureText, SDL_Color textColor, TTF_Font *font)
+bool LTexture::loadFromRenderedText(std::string_view textureText, SDL_Color textColor, TTF_Font *font, SDL_Renderer *renderer)
 {
   reset();
   auto textSurface = std::unique_ptr<SDL_Surface, void (*)(SDL_Surface *)>(TTF_RenderText_Solid(font, textureText.data(), textColor), SDL_FreeSurface);
@@ -37,7 +37,7 @@ bool LTexture::loadFromRenderedText(std::string_view textureText, SDL_Color text
     Logger::error("LTexture::loadFromRenderedText: Unable to create surface from text %s! SDL_Image Error: %s!", textureText.data(), IMG_GetError());
     return false;
   }
-  m_Texture = std::unique_ptr<SDL_Texture, void (*)(SDL_Texture *)>(SDL_CreateTextureFromSurface(Renderer::get(), textSurface.get()), SDL_DestroyTexture);
+  m_Texture = std::unique_ptr<SDL_Texture, void (*)(SDL_Texture *)>(SDL_CreateTextureFromSurface(renderer, textSurface.get()), SDL_DestroyTexture);
   if (m_Texture == nullptr) {
     Logger::error("Unable to create texture from rendered text! SDL Error: %s\n", SDL_GetError());
     return false;
@@ -89,7 +89,7 @@ void LTexture::render(int x, int y, SDL_Rect *clip, double angle, SDL_Point *cen
   }
 
   //Render to screen
-  SDL_RenderCopyEx(Renderer::get(), m_Texture.get(), clip, &renderQuad, angle, center, flip);
+  SDL_RenderCopyEx(, m_Texture.get(), clip, &renderQuad, angle, center, flip);
 }
 
 int LTexture::getWidth() const

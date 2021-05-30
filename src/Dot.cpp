@@ -15,15 +15,15 @@ constexpr std::string_view SHIMMER_PATH = "../assets/img/shimmer.bmp";
 constexpr std::array<std::string_view, 3> PARTICLE_TEXTURES = { { "../assets/img/red.bmp", "../assets/img/green.bmp", "../assets/img/blue.bmp" } };
 }// namespace
 
-Dot::Dot(Registry &registry)
+Dot::Dot(Registry *registry)
 {
-  m_texture = registry.registerTexture(DOT_PATH);
+  m_texture = registry->registerTexture(DOT_PATH);
   m_texture->setAlpha(192);
-  m_ShimmeringTexture = registry.registerTexture(SHIMMER_PATH);
+  m_ShimmeringTexture = registry->registerTexture(SHIMMER_PATH);
   m_ShimmeringTexture->setAlpha(192);
 
   std::for_each(PARTICLE_TEXTURES.begin(), PARTICLE_TEXTURES.end(), [&](std::string_view texturePath) {
-    m_particleTextures.emplace_back(registry.registerTexture(texturePath));
+    m_particleTextures.emplace_back(registry->registerTexture(texturePath));
   });
   std::for_each(m_particleTextures.begin(), m_particleTextures.end(), [](const auto &texture) {
     texture->setAlpha(192);

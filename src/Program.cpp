@@ -1,7 +1,6 @@
 #include "Program.h"
 #include "Logger.h"
 #include "SDL_Helpers.h"
-#include "Registry.h"
 #include "Renderer.h"
 #include <stdexcept>
 
@@ -12,8 +11,6 @@ SDL_Color Program::d_highlightColor;
 SDL_Event Program::event;
 bool Program::initialized = false;
 ProgramState Program::programState = ProgramState::TERMINUS;
-ProgramTypeEnum Program::m_nextProgram = ProgramTypeEnum::NO_TYPE;
-Registry Program::registry;
 
 //Constants
 namespace {
@@ -21,18 +18,19 @@ constexpr char LAZY_FONT_PATH[] = "../assets/fonts/lazy.ttf";
 constexpr int MEDIUM_FONT_SIZE = 28;
 }// namespace
 
-Program::Program(ProgramTypeEnum anEnum) : m_programType(anEnum)
+Program::Program(ProgramTypeEnum anEnum, const std::shared_ptr<Registry> &registry) :  Registrable(registry), m_programType(anEnum)
 {
   if (!initialized) {
     Logger::info("Program::ctr: Performing one-time initialization...");
     init();
     initialized = true;
   }
+  m_renderer = getRegistry()->registerRenderer();
 }
 
 Program::~Program()
 {
-  registry.removeExpired();
+  getRegistry()->removeExpired();
 }
 
 void Program::init()
@@ -81,7 +79,7 @@ void Program::endProgram()
   programState = ProgramState::REMOVE;
 }
 
-ProgramState Program::run()
+ProgramTypeEnum Program::run()
 {
   programState = ProgramState::RUNNING;
   //While application is running
@@ -91,15 +89,15 @@ ProgramState Program::run()
     while (SDL_PollEvent(&event) != 0) {
       //User requests quit
       if (event.type == SDL_QUIT) {
-        return ProgramState::TERMINUS;
+        return ProgramTypeEnum::NO_TYPE;
       } else {
         handleEvents();
       }
     }
     update();
-    Renderer::renderClear();
+    m_renderer->renderClear();
     render();
-    Renderer::update();
+    m_renderer->update();
   }
-  return programState;
+  return m_nextProgram;
 }
